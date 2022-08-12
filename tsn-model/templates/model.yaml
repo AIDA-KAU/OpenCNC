@@ -1,0 +1,192 @@
+apiVersion: config.onosproject.org/v1beta1
+kind: Model
+metadata:
+  name: {{ template "tsn-model.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "tsn-model.labels" . | nindent 4 }}
+spec:
+  plugin:
+    type: tsn-model
+    version: {{ .Chart.AppVersion | quote }}
+  modules:
+  - name: iana-crypt-hash
+    organization: IANA
+    revision: 2014-08-06
+    file: iana-crypt-hash.yang
+  - name: iana-if-type
+    organization: IANA
+    revision: 2017-01-19
+    file: iana-if-type.yang
+
+  - name: ieee802-dot1ab-lldp
+    organization: Ericsson AB
+    revision: 2018-11-13
+    file: ieee802-dot1ab-lldp.yang
+  
+  - name: ieee802-dot1ab-types
+    organization: IEEE 802.1 Working Group
+    revision: 2018-10-03
+    file: ieee802-dot1ab-types.yang
+  - name: ieee802-dot1CB
+    organization: 
+    revision: 2019-04-17
+    file: ieee802-dot1CB.yang
+
+  - name: ieee802-dot1q-bridge
+    organization: IEEE 802.1 Working Group
+    revision: 2018-03-07
+    file: ieee802-dot1q-bridge.yang
+  - name: ieee802-dot1q-fqtss
+    organization: IEEE 802.1 Working Group
+    revision: 2014-12-15
+    file: ieee802-dot1q-fqtss.yang
+
+
+  - name: ieee802-dot1q-preempt
+    organization: TTTech
+    revision: 2018-03-29
+    file: ieee802-dot1q-preempt.yang
+  - name: ieee802-dot1q-preemption
+    organization: IEEE 802.1 Working Group
+    revision: 2018-09-10
+    file: ieee802-dot1q-preemption.yang
+  - name: ieee802-dot1q-sched
+    organization: IEEE 802.1 Working Group
+    revision: 2018-09-10
+    file: ieee802-dot1q-sched.yang
+  - name: ieee802-dot1q-types
+    organization: IEEE 802.1 Working Group
+    revision: 2018-03-08
+    file: ieee802-dot1q-types.yang
+  - name: ieee802-ethernet-interface
+    organization: IEEE Std 802.3 Ethernet Working Group
+    revision: 2019-06-21
+    file: ieee802-ethernet-interface.yang
+  - name: ieee802-types
+    organization: IEEE 802.1 Working Group
+    revision: 2018-03-07
+    file: ieee802-types.yang
+
+  - name: ieee8021-mstp
+    organization: IEEE 802.1 Working Group
+    revision: 2012-08-11
+    file: ieee8021-mstp.yang
+
+  - name: ietf-datastores
+    organization: IETF Network Modeling (NETMOD) Working Group
+    revision: 2017-08-17
+    file: ietf-datastores.yang
+  - name: ietf-inet-types
+    organization: IETF NETMOD (NETCONF Data Modeling Language) Working Group
+    revision: 2013-07-15
+    file: ietf-inet-types.yang
+
+  - name: ietf-interfaces
+    organization: IETF NETMOD (Network Modeling) Working Group
+    revision: 2018-02-20
+    file: ietf-interfaces.yang
+  - name: ietf-keystore
+    organization: IETF NETCONF (Network Configuration) Working Group
+    revision: 2016-10-31
+    file: ietf-keystore.yang
+
+  - name: ietf-netconf-acm
+    organization: IETF NETCONF (Network Configuration) Working Group
+    revision: 2018-02-14
+    file: ietf-netconf-acm.yang
+  - name: ietf-netconf-monitoring
+    organization: IETF NETCONF (Network Configuration) Working Group
+    revision: 2010-10-04
+    file: ietf-netconf-monitoring.yang
+  - name: ietf-netconf-notifications
+    organization: IETF NETCONF (Network Configuration Protocol) Working Group
+    revision: 2012-02-06
+    file: ietf-netconf-notifications.yang
+  - name: ietf-netconf-server
+    organization: IETF NETCONF (Network Configuration) Working Group
+    revision: 2016-11-02
+    file: ietf-netconf-server.yang
+  - name: ietf-netconf-with-defaults
+    organization: IETF NETCONF (Network Configuration Protocol) Working Group
+    revision: 2011-06-01
+    file: ietf-netconf-with-defaults.yang
+
+  - name: ietf-netconf
+    organization: IETF NETCONF (Network Configuration) Working Group
+    revision: 2011-06-01
+    file: ietf-netconf.yang
+  - name: ietf-ptp
+    organization: Ericsson AB
+    revision: 2011-06-01
+    file: ietf-ptp.yang
+  - name: ietf-routing
+    organization: Ericsson AB
+    revision: 2018-02-14
+    file: ietf-routing.yang
+
+  - name: ietf-ssh-server
+    organization: IETF NETCONF (Network Configuration) Working Group
+    revision: 2016-11-02
+    file: ietf-ssh-server.yang
+    
+  - name: ietf-system
+    organization: Ericsson AB
+    revision: 2018-02-14
+    file: ietf-system.yang
+
+  - name: ietf-tls-server
+    organization: IETF NETCONF (Network Configuration) Working Group
+    revision: 2016-11-02
+    file: ietf-tls-server.yang
+  - name: ietf-x509-cert-to-name
+    organization: IETF NETMOD (NETCONF Data Modeling Language) Working Group
+    revision: 2014-12-10
+    file: ietf-x509-cert-to-name.yang
+
+  - name: ietf-yang-library
+    organization: Ericsson AB
+    revision: 2018-02-14
+    file: ietf-yang-library.yang
+
+  - name: ietf-yang-smiv2
+    organization: IETF NETMOD (NETCONF Data Modeling Language) Working Group
+    revision: 2012-06-22
+    file: ietf-yang-smiv2.yang
+  - name: ietf-yang-types
+    organization: IETF NETMOD (NETCONF Data Modeling Language) Working Group
+    revision: 2013-07-15
+    file: ietf-yang-types.yang
+
+  - name: nc-notifications
+    organization: Ericsson AB
+    revision: 2018-02-14
+    file: nc-notifications.yang
+
+  - name: notifications
+    organization: IETF NETCONF WG
+    revision: 2008-07-14
+    file: notifications.yang
+
+
+  - name: sysrepo-module-dependencies
+    organization: Ericsson AB
+    revision: 2018-02-14
+    file: sysrepo-module-dependencies.yang
+  - name: sysrepo-module-versions
+    organization: Ericsson AB
+    revision: 2011-06-01
+    file: sysrepo-module-versions.yang
+  - name: sysrepo-notification-store
+    organization: Ericsson AB
+    revision: 2018-02-14
+    file: sysrepo-notification-store.yang
+  - name: sysrepo-persistent-data
+    organization: Ericsson AB
+    revision: 2011-06-01
+    file: sysrepo-persistent-data.yang
+  files:
+    {{- range $path, $_  := $.Files.Glob "files/yang/*.yang" }}
+    {{ base $path }}: |
+{{ $.Files.Get $path | indent 6 }}
+    {{- end }}

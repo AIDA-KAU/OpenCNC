@@ -1,0 +1,12 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ template "grpc-client.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "grpc-client.fullname" . }}
+roleRef:
+  kind: Role
+  name: {{ template "grpc-client.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io

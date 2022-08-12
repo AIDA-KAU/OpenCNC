@@ -1,0 +1,200 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "onos-config.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+     {{- include "onos-config.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      name: {{ template "onos-config.fullname" . }}
+      app: onos
+      type: config
+      resource: {{ template "onos-config.fullname" . }}
+      {{- include "onos-config.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        name: {{ template "onos-config.fullname" . }}
+        app: onos
+        type: config
+        resource: {{ template "onos-config.fullname" . }}
+        {{- include "onos-config.selectorLabels" . | nindent 8 }}
+      annotations:
+        broker.atomix.io/inject: "true"
+        raft.storage.atomix.io/inject: "true"
+        registry.config.onosproject.org/inject: {{ template "onos-config.fullname" . }}
+        compiler.config.onosproject.org/version: {{ .Values.plugin.compiler.version | quote }}
+        {{- if .Values.plugin.compiler.target }}
+        compiler.config.onosproject.org/target: {{ .Values.plugin.compiler.target | quote }}
+        {{- else }}
+        compiler.config.onosproject.org/target: {{ printf "github.com/onosproject/onos-config@%s" .Values.image.tag | quote }}
+        {{- end }}
+        {{- range $key, $value := .Values.annotations }}
+        {{ $key }}: {{ $value }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ template "onos-config.fullname" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ include "onos-config.imagename" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # *_NAMESPACE and *_NAME environment variables are recognized by onos-lib-go utilities.
+            # These variables should always be defined.
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: SERVICE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: OIDC_SERVER_URL
+              value: {{ .Values.openidc.issuer }}
+            - name: ADMINGROUPS
+              value: {{ join "," .Values.openidc.admingroups }}
+            - name: SERVICE_NAME
+              value: {{ template "onos-config.fullname" . }}
+            - name: NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+
+          args:
+            - "--caPath=/etc/onos/certs/tls.cacrt"
+            - "--keyPath=/etc/onos/certs/tls.key"
+            - "--certPath=/etc/onos/certs/tls.crt"
+            - "--usePluginRegistry={{.Values.usePluginRegistry}}"
+            {{- if .Values.topoEndpoint }}
+            - {{ printf "--topoEndpoint=%s" .Values.topoEndpoint }}
+            {{- end }}
+            {{- range .Values.modelPlugins }}
+            - "--plugin-port={{ .port }}"
+            {{- end }}
+          ports:
+            - name: grpc
+              containerPort: 5150
+            # Expose the debug port for debugging
+            {{- if .Values.debug }}
+            - name: debug
+              containerPort: 40000
+              protocol: TCP
+            {{- end }}
+          startupProbe:
+            tcpSocket:
+              port: 5150
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            tcpSocket:
+              port: 5150
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5150
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: config
+              mountPath: /etc/onos/config
+              readOnly: true
+            - name: secret
+              mountPath: /etc/onos/certs
+              readOnly: true
+          # Enable ptrace for debugging
+          securityContext:
+            {{- if .Values.debug }}
+            capabilities:
+              add:
+                - SYS_PTRACE
+            {{- end }}
+        {{ if .Values.openpolicyagent.enabled }}
+        - name: openpolicyagent
+          image: {{ include "openpolicyagent.imagename" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          - name: http
+            containerPort: 8181
+          args:
+            - "run"
+            - "--server"
+            - "/etc/onos/rego"
+            - "--log-level"
+            - {{ .Values.openpolicyagent.loglevel }}
+          livenessProbe:
+            httpGet:
+              scheme: HTTP              # assumes OPA listens on localhost:8181
+              port: 8181
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health?bundle=true  # Include bundle activation in readiness
+              scheme: HTTP
+              port: 8181
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+            - name: openpolicyagent
+              mountPath: /etc/onos/rego
+              readOnly: true
+        {{end}}
+        {{- $root := . -}}
+        {{- range .Values.modelPlugins }}
+        - name: {{ .name }}
+          image:  {{ include "modelplugin.imagename" (dict "Values" $root.Values "image" .image) | quote }}
+          # image: {{ .image }}
+          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
+          args:
+            - "{{ .port }}"
+          ports:
+            - name: grpc
+              containerPort: {{ .port }}
+        {{- end }}
+      # Mount volumes
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "onos-config.fullname" . }}-config
+        - name: secret
+          secret:
+            secretName: {{ template "onos-config.fullname" . }}-secret
+        {{- if .Values.openpolicyagent.enabled }}
+        - name: openpolicyagent
+          configMap:
+            name: {{ .Values.openpolicyagent.regoConfigMap }}
+        {{- end}}
+    {{- with .Values.nodeSelector }}
+    nodeSelector:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+    affinity:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+    tolerations:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}

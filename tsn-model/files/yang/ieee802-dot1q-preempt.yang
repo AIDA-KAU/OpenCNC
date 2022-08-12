@@ -1,0 +1,241 @@
+module ieee802-dot1q-preempt {
+  namespace "urn:ieee:std:802.1Q:yang:ieee802-dot1q-preempt";
+  prefix "preempt1";
+
+  import ietf-yang-types { prefix "yang"; }
+  import ietf-interfaces { prefix "if"; }
+
+  organization
+   "TTTech";
+
+  contact
+   "  ";
+
+  description
+   "The Yang model for managing devices that support
+    the frame preemption enhancements for 802.1Q Bridges.
+    
+    Unless otherwise indicated, the references in this model
+    module are to IEEE Std 802.1Q-2014.";
+
+  revision 2018-03-29 {
+    description
+     "Initial version based on IEEE Std 802.1Qbu and IEEE Std 802.3br.";
+  }
+
+  feature mac-merge {
+	    description
+	      "Each Port supports the IEEE Std 802.1Qbu.";
+	    reference
+	      "IEEE Std 802.1Qbu";
+	  }
+
+   augment "/if:interfaces/if:interface" {
+		 if-feature mac-merge;
+		 container mac-merge {
+			 container admin-control {
+				 leaf merge-enable-tx {
+					 type enumeration {
+							enum "Disabled" {
+								description
+									"Transmit preemption is disabled";
+							}
+							enum "Enabled" {
+								description
+									"Transmit preemption is enabled";
+							}
+							 
+						 }
+					 description
+						 "This attribute indicates (when accessed via a GET operation) the status of the MAC Merge
+						 sublayer on the given device in the transmit direction. The status of the MAC Merge sublayer may
+						 be modified to the indicated value via a SET operation. This attribute maps to the variable pEnable
+						 (see 99.4.7.3).";
+					 reference
+						 "30.14.1.3";
+					 
+				 }
+				 leaf verify-disable-tx {
+					 type enumeration {
+						 enum "Disabled" {
+								description
+									"Verify is disabled";
+							}
+							enum "Enabled" {
+								description
+									"Verify is enabled";
+							}
+					 }
+					 description
+						 "This attribute indicates (when accessed via a GET operation) the status of the Verify function of
+						 MAC Merge sublayer on the given device in the transmit direction. The status of the Verify
+						 function may be modified to the indicated value via a SET operation. This attribute maps to the
+						 variable disableVerify (see 99.4.7.3).;";
+					 reference
+						 "30.14.1.4";
+					 
+				 }
+				 leaf verify-time {
+					 type uint16 {
+					    range "1..128";
+					 }
+				     default "10";
+					 description
+						 "The value of this attribute defines the nominal wait time between verification attempts in
+						 milliseconds. Valid range is 1 to 128 inclusive. The default value is 10. This attribute maps to the
+						 variable verifyTime (see 99.4.7.3).;";
+					 reference
+						 "30.14.1.6";
+				 }
+				 leaf frag-size {
+					 type uint16 {
+						 range "0..3";
+					 }
+					 description
+						 "A 2-bit integer value used to indicate the value of addFragSize variable used by the Transmit
+						 Processing State Diagram (see Figure 99?).";
+					 reference
+						 "30.14.1.7";
+					 
+				 }
+				 
+			 }
+			 container admin-status{
+				 config false;
+				 leaf merge-support {
+					 type enumeration {
+							enum "Supported" {
+								description
+									"MAC Merge sublayer is supported on the device";
+							}
+							enum "Not Supported" {
+								description
+									"MAC Merge sublayer is not supported on the device";
+							}
+							 
+						 }
+					 description
+						 "This attribute indicates (when accessed via a GET operation) whether the given device supports a
+						 MAC Merge sublayer. The SET operation shall have no effect on a device.";
+					 reference
+						 "30.14.1.1";
+				 }
+				 leaf verify-status {
+					 type enumeration {
+						 enum "unknown" {
+							 description 
+						       "Verification status is unknown";
+						 }
+						 enum "initial" {
+							 description
+								 "The Verify State diagram (Figure 99?) is in the state
+								 INIT_VERIFICATION";
+						 }
+						 enum "verifying" {
+							 description
+								 "The Verify State diagram is in the state VERIFICATION_IDLE,
+								 SEND_VERIFY or WAIT_FOR_RESPONSE";
+						 }
+						 enum "succeeded" {
+							 description
+								 "Indicates that the Verify State diagram is in the state VERIFIED";
+						 }
+						 enum "failed" {
+							 description
+								 "The Verify State diagram is in the state VERIFY_FAIL";
+						 }
+						 enum "disabled" {
+							 description "Verification of preemption operation is disabled";
+						 }
+					 }
+					 description
+						 "This attribute indicates (when accessed via a GET operation) the status of the MAC Merge
+						 sublayer verification on the given device. The SET operation shall have no effect on a device.";
+					 reference
+						 "30.14.1.2";
+				 }
+				 leaf status-tx {
+					 type enumeration {
+						 enum "unknown" {
+							 description
+								 "transmit preemption status is unknown";
+						 }
+						 enum "inactive" {
+							 description
+								 "transmit preemption is inactive";
+						 }
+						 enum "active" {
+							 description
+								 "transmit preemption is active";
+						 } 
+					 }
+					 description
+						 "This attribute indicates (when accessed via a GET operation) the status of the MAC Merge
+						 sublayer on the given device in the transmit direction. The SET operation shall have no effect on
+						 a device. This attribute maps to the variable preempt (see 99.4.7.3).";
+					 reference
+						 "30.14.1.5";
+				 }
+
+			 }
+			 container statistics {
+				 config false;
+				 leaf assembly-error-count {
+					 type yang:counter64;
+					 description 
+						 "A count of MAC frames with reassembly errors. The counter is incremented by one every time the
+						 ASSEMBLY_ERROR state in the Receive Processing State Diagram is entered";
+					 reference
+						 "30.14.1.8";
+				 }
+				 leaf smd-error-count {
+					 type yang:counter64;
+					 description
+						 "A count of received MAC frames / MAC frame fragments rejected due to unknown SMD value or
+						 arriving with an SMD-C when no frame is in progress. The counter is incremented by one every
+						 time the BAD_FRAG state in the Receive Processing State Diagram is entered and every time the
+						 WAIT_FOR_DV_FALSE state is entered due to the invocation of the SMD_DECODE function
+						 returning the value ?RR?";
+				     reference
+				    	 "30.14.1.9";				 
+				 }
+				 leaf assembly-ok-count {
+					 type yang:counter64;
+					 description
+						 "count of MAC frames that were successfully reassembled and delivered to MAC. The counter
+						 is incremented by one every time the FRAME_COMPLETE state in the Receive Processing state
+						 diagram (see Figure 99?) is entered if the state CHECK_FOR_RESUME was previously entered
+						 while processing the packet";
+					 reference
+						 "30.14.1.10";
+				 }
+				 leaf fragment-count-rx {
+					 type yang:counter64;
+					 description
+						 "A count of the number of additional mPackets received due to preemption. The counter is
+						 incremented by one every time the state CHECK_FRAG_CNT in the Receive Processing State
+						 Diagram (see Figure 99?) is entered";
+					 reference
+						 "30.14.1.11";
+				 }
+				 leaf fragment-count-tx {
+					 type yang:counter64;
+					 description
+						 "A count of the number of additional mPackets transmitted due to preemption. This counter is
+						 incremented by one every time the SEND_SMD_C state in the Transmit Processing State Diagram
+						 (see Figure 99?) is entered.;";
+					 reference
+						 "30.14.1.12";
+				 }
+				 leaf hold-count {
+					 type yang:counter64;
+					 description
+						 "A count of the number of times the variable hold (see 99.4.7.3) transitions from FALSE to TRUE.";
+					 reference
+						 "30.14.1.13";
+				 }
+				 
+			 }
+         }  
+   }
+}

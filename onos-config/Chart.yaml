@@ -1,0 +1,13 @@
+apiVersion: v2
+appVersion: v0.10.10
+description: ONOS Config Manager
+home: https://onosproject.org
+keywords:
+- onos
+- sdn
+kubeVersion: '>=1.17.0'
+maintainers:
+- email: support@opennetworking.org
+  name: ONOS Support
+name: onos-config
+version: 1.5.5

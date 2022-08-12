@@ -1,0 +1,12 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ template "monitor-service.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "monitor-service.fullname" . }}
+roleRef:
+  kind: Role
+  name: {{ template "monitor-service.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io

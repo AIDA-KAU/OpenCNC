@@ -1,0 +1,24 @@
+dependencies:
+- name: main-service
+  repository: file://../main-service
+  version: 0.0.1
+- name: tsn-service
+  repository: file://../tsn-service
+  version: 0.0.1
+- name: monitor-service
+  repository: file://../monitor-service
+  version: 0.0.0
+- name: onos-config
+  repository: file://../onos-config
+  version: 1.5.5
+- name: tsn-model
+  repository: file://../tsn-model
+  version: 1.0.5
+- name: onos-topo
+  repository: file://../onos-topo
+  version: 1.2.1
+- name: gnmi-netconf-adapter
+  repository: file://../gnmi-netconf-adapter
+  version: 0.0.1
+digest: sha256:53018171407236b1e5be3010d912f24f55e6923ba0b42ea0243460c882d5d2f2
+generated: "2022-07-13T06:54:22.8052289+02:00"

@@ -1,0 +1,72 @@
+nameOverride: "monitor-service"
+fullnameOverride: "monitor-service"
+
+replicaCount: 1
+annotations: {}
+
+image:
+  repository: onosproject/monitor-service
+  tag: v0.0.0
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+resources:
+  requests:
+    cpu: 0.5
+    memory: 512Mi
+
+service:
+  type: ClusterIP
+
+ports:
+  gnmi:
+    secure: 10161
+    insecure: 11161
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+global:
+  name: "onos"
+  image:
+    registry: ""
+    tag: ""
+  store:
+    consensus:
+      name: ""
+      image:
+        registry: ""
+        tag: ""
+
+store:
+  consensus:
+    enabled: false
+    name: ""
+    image:
+      registry: ""
+      repository: atomix/atomix-raft-storage-node
+      tag: ""
+      pullPolicy: IfNotPresent
+      pullSecrets: []
+    clusters: 1
+    replicas: 1
+    partitions: 1
+    raft: {}
+    persistence:
+      storageClass: ""
+      storageSize: 1Gi
+
+openpolicyagent:
+  enabled: false
+  image:
+    repository: openpolicyagent/opa
+    registry: ""
+    tag: 0.40.0
+  regoConfigMap: monitor-service-openpolicyagent
+  loglevel: info
+
+openidc:
+  issuer:

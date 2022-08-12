@@ -1,0 +1,10 @@
+apiVersion: v2
+name: gnmi-gateway
+kubeVersion: ">=1.17.0"
+type: application
+version: 0.0.0
+appVersion: v0.0.0
+description: Manages gnmi subscriptions.
+keywords:
+  - onos
+  - sdn

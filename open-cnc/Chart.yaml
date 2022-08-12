@@ -1,0 +1,36 @@
+apiVersion: v2
+name: open-cnc
+description: Helm chart deploying Open-CNC
+kubeVersion: ">=1.17.0"
+type: application
+version: 1.2.27
+appVersion: v1.1.0
+dependencies:
+  - name: main-service
+    condition: import.main-service.enabled
+    repository: file://../main-service
+    version: 0.0.1
+  - name: tsn-service
+    condition: import.tsn-service.enabled
+    repository: file://../tsn-service
+    version: 0.0.1
+  - name: monitor-service
+    condition: import.monitor-service.enabled
+    repository: file://../monitor-service
+    version: 0.0.0
+  - name: onos-config
+    condition: import.onos-config.enabled
+    repository: file://../onos-config
+    version: 1.5.5
+  - name: tsn-model
+    condition: import.tsn-model.enabled
+    repository: file://../tsn-model
+    version: 1.0.5
+  - name: onos-topo
+    condition: import.onos-topo.enabled
+    repository: file://../onos-topo
+    version: 1.2.1
+  - name: gnmi-netconf-adapter
+    condition: import.onos-topo.enabled
+    repository: file://../gnmi-netconf-adapter
+    version: 0.0.1

@@ -1,0 +1,87 @@
+global:
+  fullnameOverride: "open-cnc"
+  name: ""
+  store:
+    consensus:
+      enabled: true
+      name: ""
+      image:
+        registry: ""
+        repository: atomix/atomix-raft-storage-node
+        tag: ""
+        pullPolicy: IfNotPresent
+        pullSecrets: []
+      replicas: 1
+      partitions: 1
+      raft: {}
+      persistence:
+        storageClass: ""
+        storageSize: 1Gi
+
+store:
+  consensus:
+    enabled: false
+    name: ""
+    image:
+      registry: ""
+      repository: atomix/atomix-raft-storage-node
+      tag: ""
+      pullPolicy: IfNotPresent
+      pullSecrets: []
+    clusters: 1
+    replicas: 1
+    partitions: 1
+    raft: {}
+    persistence:
+      storageClass: ""
+      storageSize: 1Gi
+
+import:
+  main-service:
+    enabled: true
+  tsn-service:
+    enabled: true
+  monitor-service:
+    enabled: true
+  onos-config:
+    enabled: true
+  tsn-yang:
+    enabled: true
+  onos-topo:
+    enabled: true
+  gnmi-netconf-adapter:
+    enabled: true
+
+# MAIN-SERVICE
+main-service:
+  store:
+    consensus:
+      enabled: false
+
+# TSN-SERVICE
+tsn-service:
+  store:
+    consensus:
+      enabled: false
+
+# MONITOR-SERVICE
+monitor-service:
+  store:
+    consensus:
+      enabled: false
+
+# ONOS-CONFIG
+onos-config:
+  store:
+    consensus:
+      enabled: false
+  models:
+    tsn-yang:
+      v1:
+        enabled: true
+
+# ONOS-TOPO
+onos-topo:
+  store:
+    consensus:
+      enabled: false

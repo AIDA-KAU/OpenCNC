@@ -1,0 +1,126 @@
+# Default values for onos-config.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  name: "onos"
+  image:
+    registry: ""
+    tag: ""
+  store:
+    consensus:
+      name: ""
+      image:
+        registry: ""
+        tag: ""
+  openpolicyagent:
+    enabled: false
+    image:
+      registry: ""
+      tag: ""
+
+replicaCount: 1
+
+image:
+  registry: ""
+  repository: onosproject/onos-config
+  tag: v0.10.10
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+imagePullSecrets: []
+nameOverride: "onos-config"
+fullnameOverride: "onos-config"
+
+debug: false
+
+devices: []
+
+# whether to enable the model plugin registry for validation
+usePluginRegistry: false
+
+# model plugins list
+# deployed as a sidecar to onos-config, eg:
+
+modelPlugins:
+  # - name: devicesim1
+  #   image: onosproject/devicesim:1.0.0
+  #   port: 5152
+  # - name: testdevice1
+  #   image: onosproject/testdevice:1.0.0
+  #   port: 5153
+  # - name: testdevice2
+  #   image: onosproject/testdevice:2.0.0
+  #   port: 5154
+
+# Variable to change to onos topo service endpoint for the default onos-topo:5150
+# topoEndpoint: onos-topo-classic:5150
+
+plugin:
+  cache:
+    enabled: false
+    storage:
+      class: "standard"
+      size: 1Gi
+  compiler:
+    version: v1.0.1
+    target: ""
+
+store:
+  consensus:
+    enabled: false
+    name: ""
+    image:
+      registry: ""
+      repository: atomix/atomix-raft-storage-node
+      tag: ""
+      pullPolicy: IfNotPresent
+      pullSecrets: []
+    clusters: 1
+    replicas: 1
+    partitions: 1
+    raft: {}
+    persistence:
+      storageClass: ""
+      storageSize: 1Gi
+
+service:
+  type: ClusterIP
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+config: {}
+
+logging:
+  loggers:
+    root:
+      level: info
+      output:
+        stdout:
+          sink: stdout
+  sinks:
+    stdout:
+      type: stdout
+      stdout: {}
+
+# Enable by giving a value like http://dex:32000
+# make sure this is reachable at http://dex:32000/.well-known/openid-configuration
+openidc:
+  issuer:
+  admingroups:
+    - AetherROCAdmin
+    - EnterpriseAdmin
+
+openpolicyagent:
+  enabled: false
+  image:
+    repository: openpolicyagent/opa
+    registry: ""
+    tag: 0.29.4
+  regoConfigMap: onos-config-openpolicyagent
+  loglevel: info

@@ -1,0 +1,13 @@
+apiVersion: primitives.atomix.io/v2beta1
+kind: Map
+metadata:
+  name: {{ template "grpc-client.fullname" . }}-test
+  namespace: {{ .Release.Namespace }}
+spec:
+  store:
+    {{- if .Values.global.store.consensus.enabled }}
+    name: {{ template "global.store.consensus.name" . }}
+    {{- else }}
+    name: {{ template "grpc-client.store.consensus.name" . }}
+    {{- end }}
+   # name: "onos-consensus-store"

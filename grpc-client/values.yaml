@@ -1,0 +1,70 @@
+global:
+  name: "onos"
+  image:
+    registry: ""
+    tag: ""
+  store:
+    consensus:
+      name: ""
+      image:
+        registry: ""
+        tag: ""
+
+nameOverride: "grpc-client"
+fullnameOverride: "grpc-client"
+
+replicaCount: 1
+
+image:
+  repository: onosproject/grpc-client
+  tag: v0.0.0
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+resources:
+  requests:
+    cpu: 0.5
+    memory: 512Mi
+
+store:
+  consensus:
+    enabled: false
+    name: ""
+    image:
+      registry: ""
+      repository: atomix/atomix-raft-storage-node
+      tag: ""
+      pullPolicy: IfNotPresent
+      pullSecrets: []
+    clusters: 1
+    replicas: 1
+    partitions: 1
+    raft: {}
+    persistence:
+      storageClass: ""
+      storageSize: 1Gi
+
+service:
+  type: ClusterIP
+
+ports:
+  grpc:
+    insecure: 4040
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+openpolicyagent:
+  enabled: false
+  image:
+    repository: openpolicyagent/opa
+    registry: ""
+    tag: 0.40.0
+  regoConfigMap: grpc-client-openpolicyagent
+  loglevel: info
+
+openidc:
+  issuer:

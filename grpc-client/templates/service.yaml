@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "grpc-client.fullname" . }}
+  labels:
+    app: {{ template "grpc-client.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    {{- include "grpc-client.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    name: {{ template "grpc-client.fullname" . }}
+  ports:
+    {{- range $key, $port := .Values.ports.grpc }}
+    - name: grpc{{ $key }}
+      port: {{ $port }}
+    {{- end}}

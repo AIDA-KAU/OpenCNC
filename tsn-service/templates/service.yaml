@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "tsn-service.fullname" . }}
+  labels:
+    app: {{ template "tsn-service.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    {{- include "tsn-service.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    name: {{ template "tsn-service.fullname" . }}
+  ports:
+    - name: grpc
+      port: 5150

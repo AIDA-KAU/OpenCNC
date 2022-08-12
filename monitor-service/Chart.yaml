@@ -1,0 +1,10 @@
+apiVersion: v2
+name: monitor-service
+kubeVersion: ">=1.17.0"
+type: application
+version: 0.0.0
+appVersion: v0.0.0
+description: Service providing monitoring of counters for switches in the network
+keywords:
+  - onos
+  - sdn

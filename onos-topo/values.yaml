@@ -1,0 +1,75 @@
+# Default values for onos-topo.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  name: "onos"
+  image:
+    registry: ""
+    tag: ""
+  store:
+    consensus:
+      name: ""
+      image:
+        registry: ""
+        tag: ""
+
+replicaCount: 1
+
+image:
+  registry: ""
+  repository: onosproject/onos-topo
+  tag: v0.9.2
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+imagePullSecrets: []
+nameOverride: "onos-topo"
+fullnameOverride: "onos-topo"
+
+debug: false
+
+store:
+  consensus:
+    enabled: false
+    name: ""
+    image:
+      registry: ""
+      repository: atomix/atomix-raft-storage-node
+      tag: ""
+      pullPolicy: IfNotPresent
+      pullSecrets: []
+    replicas: 1
+    partitions: 1
+    raft: {}
+    persistence:
+      storageClass: ""
+      storageSize: 1Gi
+
+resources: {}
+
+service:
+  type: ClusterIP
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+logging:
+  loggers:
+    root:
+      level: info
+      output:
+        stdout:
+          sink: stdout
+  sinks:
+    stdout:
+      type: stdout
+      stdout: {}
+
+# Enable by giving a value like http://dex:32000
+# make sure this is reachable at http://dex:32000/.well-known/openid-configuration
+openidc:
+  issuer:

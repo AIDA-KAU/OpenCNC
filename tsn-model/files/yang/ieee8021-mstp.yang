@@ -1,0 +1,1446 @@
+module ieee8021-mstp {
+
+  namespace "urn:ietf:params:xml:ns:yang:smiv2:ieee8021-mstp";
+  prefix "ieee8021-mstp";
+
+/*
+  import SNMPv2-TC {
+    prefix "snmpv2-tc";
+  }
+*/
+
+  import ietf-yang-smiv2 {
+    prefix "smiv2";
+  }
+
+  import ietf-yang-types {
+    prefix "yang";
+  }
+
+  organization
+   "IEEE 802.1 Working Group";
+
+  contact
+   "  WG-URL: http://grouper.ieee.org/groups/802/1/index.html
+    WG-EMail: stds-802-1@ieee.org
+    
+     Contact: David Levi
+      Postal: C/O IEEE 802.1 Working Group
+              IEEE Standards Association
+              445 Hoes Lane
+              P.O. Box 1331
+              Piscataway
+              NJ 08855-1331
+              USA
+      E-mail: STDS-802-1-L@LISTSERV.IEEE.ORG";
+
+  description
+   "The Bridge MIB modules for managing devices that support
+    IEEE 802.1Q multiple spanning tree groups.
+    
+    Unless otherwise indicated, the references in this MIB
+    module are to IEEE 802.1Q-2011.
+    
+    Copyright (C) IEEE.
+    This version of this MIB module is part of IEEE802.1Q;
+    see the draft itself for full legal notices.";
+    
+  revision 2012-08-11 {
+    description
+     "Removed imported modules ieee8021-tc, BRIDGE-MIB and 
+     snmp-framework-mib. Types used from these modules copied to
+     ieee8021-mstp yang module.";
+  }
+
+  revision 2012-08-10 {
+    description
+     "Updated cross references to other clauses, particularly
+      Clause 13, as part of 802.1Q Cor-2.";
+  }
+
+  revision 2011-12-12 {
+    description
+     "Deprecated ieee8021MstpFidToMstiTable for an identical 
+      ieee8021MstpFidToMstiV2Table to add 4095 to the range
+      of ieee8021MstpFidToMstiV2Fid  and to add 0 and 4095 to
+      the range of ieee8021MstpFidToMstiV2MstId for 802.1aq. 
+      Deprecated ieee8021MstpVlanTable for an identical 
+      ieee8021MstpVlanV2Table to add 0 & 4095 to the range
+      of ieee8021MstpVlanV2MstId for 802.1aq";
+  }
+
+  revision 2011-03-23 {
+    description
+     "Minor edits to contact information, correction to range of
+      ieee8021MstpCistMaxHops and addition of fragile bridge
+      as part of 2011 revision of IEEE Std 802.1Q.";
+  }
+
+  revision 2008-10-15 {
+    description
+     "Initial version.";
+  }
+  
+  typedef IEEE8021PbbComponentIdentifier {
+    type uint32 {
+      range "1..4294967295";
+    }
+    description
+     "The component identifier is used to distinguish between the 
+      multiple virtual bridge instances within a PB or PBB.  Each 
+      virtual bridge instance is called a component.  In simple 
+      situations where there is only a single component the default 
+      value is 1.  The component is identified by a component
+      identifier unique within the BEB and by a MAC address unique 
+      within the PBBN.  Each component is associated with a Backbone 
+      Edge Bridge (BEB) Configuration managed object.";
+    reference
+     "12.3 l)";
+    smiv2:display-hint "d";
+  }
+
+  typedef IEEE8021MstIdentifier {
+    type uint32 {
+      range "1..4094";
+    }
+    description
+     "In an MSTP Bridge, an MSTID, i.e., a value used to identify 
+      a spanning tree (or MST) instance.  In the PBB-TE environment 
+      the value 4094 is used to identify VIDs managed by the PBB-TE 
+      procedures.";
+    smiv2:display-hint "d";
+  }
+  
+  typedef IEEE8021BridgePortNumber {
+    type uint32 {
+      range "1..65535";
+    }
+    description
+     "An integer that uniquely identifies a bridge port, as 
+      specified in 17.3.2.2 of IEEE 802.1ap.
+      This value is used within the spanning tree 
+      protocol to identify this port to neighbor bridges.";
+    reference
+     "17.3.2.2";
+    smiv2:display-hint "d";
+  }
+  
+  typedef BridgeId {
+    type binary {
+      length "8";
+    }
+    description
+     "The Bridge-Identifier, as used in the Spanning Tree
+      Protocol, to uniquely identify a bridge.  Its first two
+      octets (in network byte order) contain a priority value,
+      and its last 6 octets contain the MAC address used to
+      refer to a bridge in a unique fashion (typically, the
+      numerically smallest MAC address of all ports on the
+      bridge).";
+  }
+
+  typedef SnmpAdminString {
+    type string {
+      length "0..255";
+    }
+    description
+     "An octet string containing administrative
+      information, preferably in human-readable form.
+      
+      To facilitate internationalization, this
+      information is represented using the ISO/IEC
+      IS 10646-1 character set, encoded as an octet
+      string using the UTF-8 transformation format
+      described in [RFC2279].
+      
+      Since additional code points are added by
+      amendments to the 10646 standard from time
+      to time, implementations must be prepared to
+      encounter any code point from 0x00000000 to
+      0x7fffffff.  Byte sequences that do not
+      correspond to the valid UTF-8 encoding of a
+      code point or are outside this range are
+      prohibited.
+      
+      The use of control codes should be avoided.
+      
+      When it is necessary to represent a newline,
+      the control code sequence CR LF should be used.
+      
+      The use of leading or trailing white space should
+      be avoided.
+      
+      For code points not directly supported by user
+      interface hardware or software, an alternative
+      means of entry and display, such as hexadecimal,
+      may be provided.
+      
+      For information encoded in 7-bit US-ASCII,
+      the UTF-8 encoding is identical to the
+      US-ASCII encoding.
+      
+      UTF-8 may require multiple bytes to represent a
+      single character / code point; thus the length
+      of this object in octets may be different from
+      the number of characters encoded.  Similarly,
+      size constraints refer to the number of encoded
+      octets, not the number of characters represented
+      by an encoding.
+      
+      Note that when this TC is used for an object that
+      is used or envisioned to be used as an index, then
+      a SIZE restriction MUST be specified so that the
+      number of sub-identifiers for any object instance
+      does not exceed the limit of 128, as defined by
+      [RFC3416].
+      
+      Note that the size of an SnmpAdminString object is
+      measured in octets, not characters.";
+    smiv2:display-hint "255t";
+  }
+
+  container ieee8021-mstp {
+
+    container ieee8021MstpCistTable {
+      description
+       "The Common and Internal Spanning Tree (CIST) Table. Each row in
+        the table represents information regarding a Bridge's Bridge
+        Protocol Entity for the CIST.
+        
+        Note that entries will exist in this table only for bridge
+        components for which the corresponding instance of
+        ieee8021SpanningTreeVersion (from the IEEE8021-SPANNING-TREE-MIB)
+        has a value of mstp(2).
+        
+        This table contains objects corresponding to the following items
+        from 12.8.1.1 and 12.8.1.3 of IEEE 802.1Q-2005, and the
+        802.1ah amendement.  Some of those items are provided in the
+        IEEE8021-SPANNING-TREE-MIB as noted below.
+        
+        From 12.8.1.1:
+            Items a), c), o), p), and q) are defined in this table
+            The remaining items are covered in the
+            IEEE8021-SPANNING-TREE-MIB:
+                b) ieee8021SpanningTreeTimeSinceTopologyChange
+                c) ieee8021SpanningTreeTopChanges
+                e) ieee8021SpanningTreeDesignatedRoot
+                f) ieee8021SpanningTreeRootCost
+                g) ieee8021SpanningTreeRootPort
+                h) ieee8021SpanningTreeMaxAge
+                i) ieee8021SpanningTreeForwardDelay
+                j) ieee8021SpanningTreeBridgeMaxAge
+                k) ieee8021SpanningTreeBridgeHelloTime
+                l) ieee8021SpanningTreeBridgeForwardDelay
+                m) ieee8021SpanningTreeHoldTime
+                n) ieee8021SpanningTreeVersion
+        From 12.8.1.3:
+            Item g) is defined in this table
+            The remaining items are covered in the
+            IEEE8021-SPANNING-TREE-MIB:
+                a) ieee8021SpanningTreeBridgeMaxAge
+                b) ieee8021SpanningTreeBridgeHelloTime
+                c) ieee8021SpanningTreeBridgeForwardDelay
+                d) ieee8021SpanningTreePriority
+                e) ieee8021SpanningTreeVersion
+                f) ieee8021RstpStpExtTxHoldCount";
+      reference
+       "12.8.1.1, 12.8.1.3";
+      smiv2:oid "0.6.1.1";
+
+      list ieee8021MstpCistEntry {
+        key "ieee8021MstpCistComponentId";
+        description
+         "A CIST Table entry.";
+        smiv2:oid "0.6.1.1.1";
+
+        leaf ieee8021MstpCistComponentId {
+		 type IEEE8021PbbComponentIdentifier;
+          description
+           "The component identifier is used to distinguish between the
+            multiple virtual bridge instances within a PBB.  In simple
+            situations where there is only a single component the default
+            value is 1.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.1.1.1";
+        }
+		
+        leaf ieee8021MstpCistBridgeIdentifier {
+		  config false;
+          type BridgeId;
+          description
+           "The Bridge Identifier for the CIST.";
+          reference
+           "9.2.5 of IEEE Std 802.1D-2004";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.1.1.2";
+        }
+
+        leaf ieee8021MstpCistTopologyChange {
+		  config false;
+          type boolean;
+          description
+           "In an STP Bridge, the value of the Topology Change parameter
+            (14.8.1.1.3, item d of IEEE Std 802.1D, 2004 Edition), or in
+            an RSTP or MSTP Bridge, asserted if the tcWhile timer for any
+            Port for the CIST is non-zero.";
+          reference
+           "14.8.1.1.3:d of IEEE 802.1D-2004";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.1.1.3";
+        }
+
+        leaf ieee8021MstpCistRegionalRootIdentifier {
+		  config false;
+          type BridgeId;
+          description
+           "In an MSTP Bridge, the CIST Regional Root Identifier parameter,
+            i.e. the Bridge Identifier of the current CIST Regional Root.";
+          reference
+           "13.16.4";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.1.1.4";
+        }
+
+        leaf ieee8021MstpCistPathCost {
+		  config false;
+          type uint32 {
+            range "0..2147483647";
+          }
+          description
+           "In an MSTP Bridge, the CIST Path Cost parameter, i.e. the CIST
+            path cost from the transmitting Bridge to the CIST Regional Root.
+            The sum (about 20 possible out of the given range) of multiple
+            port path costs. Also, if the 'transmitting Bridge' is
+            the 'CIST Regional Root', then this value could be zero.";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.1.1.5";
+        }
+		
+        leaf ieee8021MstpCistMaxHops {
+          type int32 {
+            range "6..40";
+          }
+          description
+           "In an MSTP Bridge, the MaxHops parameter.
+            The value of this object MUST be retained across
+            reinitializations of the management system.";
+          reference
+           "13.26.4";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.1.1.6";
+        }
+        
+        leaf ieee8021MstpCistBridgePriority {
+          config false;
+          type int32 {
+            range "0..15";
+          }
+          description
+           "In an MSTP Bridge, the CIST Bridge Priority parameter value.
+            The four most significant bits of the Bridge Identifier.";
+        }
+      }
+    }
+
+    container ieee8021MstpTable {
+      description
+       "In an MSTP Bridge, the MSTP Table. Each row in the Table
+        represents information regarding a Bridge's Bridge Protocol
+        Entity for the specified Spanning Tree instance.
+        
+        Entries in this table MUST be retained across
+        reinitializations of the management system.
+        
+        Note that entries can be created in this table only for bridge
+        components for which the corresponding instance of
+        ieee8021SpanningTreeVersion (from the IEEE8021-SPANNING-TREE-MIB)
+        has a value of mstp(2).";
+      reference
+       "12.8.1.2, 12.8.1.4, 12.12.3.2, 12.12.1";
+      smiv2:oid "0.6.1.2";
+
+      list ieee8021MstpEntry {
+        key "ieee8021MstpComponentId ieee8021MstpId";
+        description
+         "A MSTP Table entry.";
+        smiv2:oid "0.6.1.2.1";
+
+        leaf ieee8021MstpComponentId {
+		  type IEEE8021PbbComponentIdentifier;
+          description
+           "The component identifier is used to distinguish between the
+            multiple virtual bridge instances within a PBB.  In simple
+            situations where there is only a single component the default
+            value is 1.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.2.1.1";
+        }
+
+        leaf ieee8021MstpId {
+		  type IEEE8021MstIdentifier;
+          description
+           "In an MSTP Bridge, this parameter is the MSTID, i.e. the
+            identifier of a Spanning Tree (or MST) Instance.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.2.1.2";
+        }
+		
+        leaf ieee8021MstpBridgeId {
+		  config false;
+          type BridgeId;
+          description
+           "In an MSTP Bridge, the Bridge Identifier for the MSTI.";
+          reference
+           "13.26.2";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.2.1.3";
+        }
+
+        leaf ieee8021MstpTimeSinceTopologyChange {
+		  config false;
+          type yang:timeticks;
+          units "centi-seconds";
+          description
+           "In an MSTP Bridge, count in seconds of the time elapsed since
+            tcWhile was last non-zero for any Port for the MSTI.";
+          reference
+           "13.25.9";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.2.1.4";
+        }
+
+        leaf ieee8021MstpTopologyChanges {
+		  config false;
+          type yang:counter64;
+          units "topology changes";
+          description
+           "In an MSTP Bridge, count of the times tcWhile has been
+            non-zero for any Port for the MSTI since the Bridge was powered
+            on or initialized.";
+          reference
+           "13.25.9";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.2.1.5";
+        }
+/*
+        leaf ieee8021MstpTopologyChange {
+		  config false;
+          type boolean;
+          description
+           "In an MSTP Bridge, the Topology Change parameter value: true(1)
+            if tcWhile is non-zero for any Port for the MSTI.";
+          reference
+           "13.25.9";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.2.1.6";
+        }
+*/
+        leaf ieee8021MstpDesignatedRoot {
+		  config false;
+          type BridgeId;
+          description
+           "In an MSTP Bridge, the Designated Root parameter value, i.e. the
+            Bridge Identifier of the Root Bridge for the MSTI.";
+          reference
+           "13.27.20";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.2.1.7";
+        }
+
+        leaf ieee8021MstpRootPathCost {
+		  config false;
+          type int32;
+          description
+           "In an MSTP Bridge, the Root Path Cost parameter value, i.e. the
+            path cost from the 
+            transmitting Bridge to the Root Bridge for
+            the MSTI.";
+          reference
+           "13.27.20";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.2.1.8";
+        }
+
+        leaf ieee8021MstpRootPort {
+		  config false;
+		  type IEEE8021BridgePortNumber;
+          description
+           "In an MSTP Bridge, the Root Port parameter value, i.e. the Root
+            Port for the MSTI.";
+          reference
+           "13.26.9";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.2.1.9";
+        }
+		
+        leaf ieee8021MstpBridgePriority {
+          type int32 {
+            range "0..15";
+          }
+          description
+           "In an MSTP Bridge, the Bridge Priority parameter value for the
+            MSTI, i.e. the four most significant bits of the Bridge Identifier
+            for the MSTI.";
+          reference
+           "13.26.2";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.2.1.10";
+        }
+/*
+        leaf ieee8021MstpVids0 {
+          type binary {
+            length "128";
+          }
+          description
+           "This object contains the first 1024 bits of the 4096 bit vector
+            indicating which VIDs are assigned to this MSTID.  The high order
+            bit of the first octet corresponds to the first bit of the vector,
+            while the low order bit of the last octet corresponds to the last
+            bit of this portion of the vector.  A bit that is on (equal to 1)
+            indicates that the corresponding VID is assigned to this MSTID.";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.2.1.11";
+        }
+
+        leaf ieee8021MstpVids1 {
+          type binary {
+            length "128";
+          }
+          description
+           "This object contains the second 1024 bits of the 4096 bit vector
+            indicating which VIDs are assigned to this MSTID.  The high order
+            bit of the first octet corresponds to the first bit of this
+            portion of the vector, while the low order bit of the last octet
+            corresponds to the last bit of this portion of the vector.  A bit
+            that is on (equal to 1) indicates that the corresponding VID is
+            assigned to this MSTID.";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.2.1.12";
+        }
+
+        leaf ieee8021MstpVids2 {
+          type binary {
+            length "128";
+          }
+          description
+           "This object contains the third 1024 bits of the 4096 bit vector
+            indicating which VIDs are assigned to this MSTID.  The high order
+            bit of the first octet corresponds to the first bit of this
+            portion of the vector, while the low order bit of the last octet
+            corresponds to the last bit of this portion of the vector.  A bit
+            that is on (equal to 1) indicates that the corresponding VID is
+            assigned to this MSTID.";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.2.1.13";
+        }
+
+        leaf ieee8021MstpVids3 {
+          type binary {
+            length "128";
+          }
+          description
+           "This object contains the fourth 1024 bits of the 4096 bit vector
+            indicating which VIDs are assigned to this MSTID.  The high order
+            bit of the first octet corresponds to the first bit of this
+            portion of the vector, while the low order bit of the last octet
+            corresponds to the last bit of this portion of the vector.  A bit
+            that is on (equal to 1) indicates that the corresponding VID is
+            assigned to this MSTID.";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.2.1.14";
+        }
+		
+        leaf ieee8021MstpRowStatus {
+          type snmpv2-tc:RowStatus;
+          description
+           "The status of the row.
+            
+            Read SNMPv2-TC (RFC2579) for an
+            explanation of the possible values this object can take.
+            
+            The writable columns in a row can not be changed if the row
+            is active. All columns must have a valid value before a row
+            can be activated.";
+          smiv2:max-access "read-write";//RW
+          smiv2:oid "0.6.1.2.1.15";
+        }
+*/
+      }
+    }
+
+    container ieee8021MstpCistPortTable {
+      description
+       "The CIST Port Table. Each row in the Table represents information
+        regarding a specific Port within the Bridge's Bridge Protocol
+        Entity, for the CIST.
+        
+        The values of all writable objects in this table MUST be
+        retained across reinitializations of the management system.
+        
+        Note that entries will exist in this table only for bridge
+        components for which the corresponding instance of
+        ieee8021SpanningTreeVersion (from the IEEE8021-SPANNING-TREE-MIB)
+        has a value of mstp(2).
+        
+        This table contains objects corresponding to the following items
+        from 12.8.2.1, 12.8.2.3, and 12.8.1.5 of IEEE 802.1Q-2005, and the
+        802.1ah amendement.  Some of those items are provided in the
+        IEEE8021-SPANNING-TREE-MIB as noted below.
+        
+        From 12.8.2.1:
+            Items a), d), e), and i) through w) are defined in this table
+            The remaining items are covered in the
+            IEEE8021-SPANNING-TREE-MIB:
+                b) ieee8021SpanningTreePortState
+                c) ieee8021SpanningTreePortPriority
+                d) ieee8021SpanningTreePortPathCost32,
+                f) ieee8021SpanningTreePortDesignatedCost
+                g) ieee8021SpanningTreePortDesignatedBridge
+                h) ieee8021SpanningTreePortDesignatedPort
+        From 12.8.2.3:
+            Items a), b), and d) through h) are defined in this table
+                (item a is the index)
+            The remaining items are covered in the
+            IEEE8021-SPANNING-TREE-MIB:
+                b) ieee8021SpanningTreePortPathCost,
+                c) ieee8021SpanningTreePortPriority
+        From 12.8.2.5:
+            All items are defined in this table
+        From 802.1ah 12.8.2.1:
+            Items u), v), w), and x) are defined in this table
+        From 802.1ah 12.8.2.3:
+            Items i), j), k), and l) are defined in this table";
+      reference
+       "12.8.2.1, 12.8.2.3, 12.8.2.5";
+      smiv2:oid "0.6.1.3";
+
+      list ieee8021MstpCistPortEntry {
+        key "ieee8021MstpCistPortComponentId ieee8021MstpCistPortNum";
+        description
+         "A CIST Port Table entry.";
+        smiv2:oid "0.6.1.3.1";
+
+        leaf ieee8021MstpCistPortComponentId {
+		  type IEEE8021PbbComponentIdentifier;
+          description
+           "The component identifier is used to distinguish between the
+            multiple virtual bridge instances within a PBB.  In simple
+            situations where there is only a single component the default
+            value is 1.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.3.1.1";
+        }
+
+        leaf ieee8021MstpCistPortNum {
+		  type IEEE8021BridgePortNumber;
+          description
+           "The Port's Port Number parameter value for the CIST, i.e. the
+            number of the Bridge Port for the CIST.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.3.1.2";
+        }
+/*
+        leaf ieee8021MstpCistPortUptime {
+		  config false;
+          type yang:timeticks;
+          units "centi-seconds";
+          description
+           "The Port's Uptime parameter value for the CIST, i.e. the count
+            in seconds of the time elapsed since the Port was last reset or
+            initialized (BEGIN, Annex E).";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.3.1.3";
+        }
+*/
+        leaf ieee8021MstpCistPortAdminPathCost {
+          type int32 {
+            range "0..200000000";
+          }
+          description
+           "The administratively assigned value for the contribution
+            of this port to the path cost of paths toward the spanning
+            tree root.
+            
+            Writing a value of '0' assigns the automatically calculated
+            default Path Cost value to the port.  If the default Path
+            Cost is being used, this object returns '0' when read.
+            
+            This complements the object ieee8021MstpCistPortPathCost,
+            which returns the operational value of the path cost.
+            
+            The value of this object MUST be retained across
+            reinitializations of the management system.";
+          reference
+           "13.27.25, 17.13.11 of IEEE Std 802.1D";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.3.1.4";
+        }
+		
+        leaf ieee8021MstpCistPortDesignatedRoot {
+		  config false;
+          type BridgeId;
+          description
+           "The CIST Regional Root Identifier component of the Port's port
+            priority vector, as defined in 13.10, for the CIST.";
+          reference
+           "13.25.7";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.3.1.5";
+        }
+
+        leaf ieee8021MstpCistPortTopologyChangeAck {
+		  config false;
+          type boolean;
+          description
+           "The Port's Topology Change Acknowledge parameter value.
+            True(1) if a Configuration Message with a topology change
+            acknowledge flag set is to be transmitted. ";
+          reference
+           "17.19.41 of IEEE Std 802.1D";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.3.1.6";
+        }
+
+        leaf ieee8021MstpCistPortHelloTime {
+		  config false;
+          type int32 {
+            range "100..1000";
+          }
+          units "centi-seconds";
+          description
+           "The Port's Hello Time timer parameter value, for the CIST.
+            In centi-seconds";
+          reference
+           "13.27.48, 17.19.22 of IEEE Std 802.1D";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.3.1.7";
+        }
+		
+        leaf ieee8021MstpCistPortAdminEdgePort {
+          type boolean;
+          description
+           "In a Bridge that supports the identification of edge ports, the
+            Port's Admin Edge Port parameter value, for the CIST.";
+          reference
+           "17.13.1 of IEEE Std 802.1D";
+          smiv2:defval "true";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.3.1.8";
+        }
+
+        leaf ieee8021MstpCistPortOperEdgePort {
+		  config false;
+          type boolean;
+          description
+           "In a Bridge that supports the identification of edge ports, the
+            Port's operational Edge Port parameter value, for the CIST.
+            True(1) if it is an Oper Edge Port.";
+          reference
+           "17.19.17 of IEEE Std 802.1D";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.3.1.9";
+        }
+		
+        leaf ieee8021MstpCistPortMacEnabled {
+          type boolean;
+          description
+           "In a Bridge that supports the MAC Enabled parameter, the current
+            state of the MAC Enabled parameter.
+            True(1) indicates that adminstratively the MAC is set as if it 
+            was connected to a point-to-point LAN.";
+          reference
+           "12.8.2.1.3 p)";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.3.1.10";
+        }
+/*		
+        leaf ieee8021MstpCistPortMacOperational {
+		  config false;
+          type boolean;
+          description
+           "In a Bridge that supports the MAC Operational parameter, the
+            current state of the MAC Operational parameter.
+            True(1) indicates the MAC is operational.";
+          reference
+           "12.8.2.1.3 q)";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.3.1.11";
+        }
+*/		
+        leaf ieee8021MstpCistPortRestrictedRole {
+          type boolean;
+          description
+           "The current state of the restrictedRole parameter for the Port.
+            True(1) causes the Port not to be selected as Root Port for the 
+            CIST or any MSTI. ";
+          reference
+           "13.27.64";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.3.1.12";
+        }
+
+        leaf ieee8021MstpCistPortRestrictedTcn {
+          type boolean;
+          description
+           "The current state of the restrictedTcn parameter for the Port.
+            True(1) causes the Port not to propagate topology changes to 
+            other Ports.";
+          reference
+           "13.27.65";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.3.1.13";
+        }
+
+        leaf ieee8021MstpCistPortRole {
+		  config false;
+          type enumeration {
+            enum "disabled" {
+              value "0";
+            }
+            enum "root" {
+              value "1";
+            }
+            enum "alternate" {
+              value "2";
+            }
+            enum "designated" {
+              value "3";
+            }
+            enum "backup" {
+              value "4";
+            }
+          }
+          description
+           "The current Port Role for the Port (i.e., Root, Alternate,
+            Designated, or Backup), for the CIST.";
+          reference
+           "12.8.2.1.3 v)";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.3.1.14";
+        }
+
+        leaf ieee8021MstpCistPortDisputed {
+		  config false;
+          type boolean;
+          description
+           "The current value of the disputed variable for the CIST for
+            the Port.  A value of true(1) indicates that the disputed
+            variable is set.  A value of false(2) indicates that the
+            agreed variable is cleared.";
+          reference
+           "13.27.22, and 17.19.6 of IEEE Std 802.1D";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.3.1.15";
+        }
+
+        leaf ieee8021MstpCistPortCistRegionalRootId {
+		  config false;
+          type BridgeId;
+          description
+           "In an MSTP Bridge, the CIST Regional Root Identifier, i.e. the
+            Bridge Identifier of the current CIST Regional Root, for the CIST.";
+          reference
+           "13.9:c, 13.10, 13.27.47";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.3.1.16";
+        }
+
+        leaf ieee8021MstpCistPortCistPathCost {
+		  config false;
+          type uint32 {
+            range "0..2147483647";
+          }
+          description
+           "In an MSTP Bridge, the CIST Internal Root Path Cost, i.e. the
+            CIST path cost from the transmitting Bridge to the CIST Regional
+            Root, for the CIST.
+            
+            The sum (about 20 possible out of the given range) of multiple
+            port path costs. Also, if the 'the transmitting Bridge' is
+            'the CIST Regional Root', then this value could be zero.";
+          reference
+           "13.9:d, 13.10, 13.27.47";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.3.1.17";
+        }
+/*	
+        leaf ieee8021MstpCistPortProtocolMigration {
+          type boolean;
+          description
+           "In an MSTP Bridge, the current value of the mcheck variable for
+            the Port.  A value of true(1) forces the state machine to
+            perform functions as per 17.19.13.";
+          reference
+           "17.19.13 of IEEE Std 802.1D";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.3.1.18";
+        }
+
+        leaf ieee8021MstpCistPortEnableBPDURx {
+          type boolean;
+          description
+           "In an MSTP Bridge, the enableBPDUrx parameter value.  A value
+            of false(2) indicates that BPDUs are ignored.";
+          reference
+           "13.27.23";
+          smiv2:defval "true";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.3.1.19";
+        }
+
+        leaf ieee8021MstpCistPortEnableBPDUTx {
+          type boolean;
+          description
+           "In an MSTP Bridge, the enableBPDUtx parameter value.  A value
+            of false(2) indicates that BPDUs are not transmitted.";
+          reference
+           "13.27.24";
+          smiv2:defval "true";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.3.1.20";
+        }
+
+        leaf ieee8021MstpCistPortPseudoRootId {
+          type BridgeId;
+          description
+           "In an MSTP Bridge, the pseudoRootId parameter value.";
+          reference
+           "13.27.51";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.3.1.21";
+        }
+
+        leaf ieee8021MstpCistPortIsL2Gp {
+          type boolean;
+          description
+           "In an MSTP Bridge, the isL2gp parameter value.  A value of
+            true(1) indicates this is an L2GP port.";
+          reference
+           "13.27.26";
+          smiv2:defval "false";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.3.1.22";
+        }
+*/
+      }
+    }
+
+    container ieee8021MstpPortTable {
+      description
+       "The MSTP Port Table. Each row in the Table represents information
+        regarding a specific Port within the Bridge's Bridge Protocol
+        Entity, for a given MSTI.
+        
+        The values of all writable objects in this table MUST be
+        retained across reinitializations of the management system.
+        
+        Note that entries will exist in this table only for bridge
+        components for which the corresponding instance of
+        ieee8021SpanningTreeVersion (from the IEEE8021-SPANNING-TREE-MIB)
+        has a value of mstp(2).";
+      reference
+       "12.8.2.2, 12.8.2.4";
+      smiv2:oid "0.6.1.4";
+
+      list ieee8021MstpPortEntry {
+        key "ieee8021MstpPortComponentId ieee8021MstpPortMstId ieee8021MstpPortNum";
+        description
+         "A MSTP Port Table entry.";
+        smiv2:oid "0.6.1.4.1";
+
+        leaf ieee8021MstpPortComponentId {
+		  type IEEE8021PbbComponentIdentifier;
+          description
+           "The component identifier is used to distinguish between the
+            multiple virtual bridge instances within a PBB.  In simple
+            situations where there is only a single component the default
+            value is 1.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.4.1.1";
+        }
+
+        leaf ieee8021MstpPortMstId {
+		  type IEEE8021MstIdentifier;
+          description
+           "In an MSTP Bridge, this parameter is the MSTID, i.e. the
+            identifier of a Spanning Tree (or MST) Instance.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.4.1.2";
+        }
+
+        leaf ieee8021MstpPortNum {
+		  type IEEE8021BridgePortNumber;
+          description
+           "In an MSTP Bridge, the Port's Port Number parameter value for
+            the MSTI, i.e. the number of the Bridge Port for the MSTI.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.4.1.3";
+        }
+/*
+        leaf ieee8021MstpPortUptime {
+		  config false;
+          type yang:timeticks;
+          units "centi-seconds";
+          description
+           "In an MSTP Bridge, the Port's Uptime parameter value for the
+            MSTI, i.e. the count in seconds of the time elapsed since the
+            Port was last reset or initialized (BEGIN, Annex E).";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.4.1.4";
+        }
+*/
+        leaf ieee8021MstpPortState {
+		  config false;
+          type enumeration {
+            enum "disabled" {
+              value "1";
+            }
+            enum "listening" {
+              value "2";
+            }
+            enum "learning" {
+              value "3";
+            }
+            enum "forwarding" {
+              value "4";
+            }
+            enum "blocking" {
+              value "5";
+            }
+	        enum "discarding" {
+              value "6";
+            }
+          }
+          description
+           "In an MSTP Bridge, the current state of the Port (i.e., Disabled,
+            Listening, Learning, Forwarding, or Blocking), for the MSTI.";
+          reference
+           "13.38, and 17.10 of IEEE Std 802.1D";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.4.1.5";
+        }
+		
+        leaf ieee8021MstpPortPriority {
+          type int32 {
+            range "0..15";
+          }
+          description
+           "In an MSTP Bridge, the Port's Port Priority parameter value for
+            the MSTI, i.e. the priority field for the Port Identifier for the
+            Port for the MSTI.";
+          reference
+           "13.27.47";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.4.1.6";
+        }
+
+        leaf ieee8021MstpPortPathCost {
+          type int32 {
+            range "1..200000000";
+          }
+          description
+           "In an MSTP Bridge, the Port's Port Path Cost parameter value for
+            the MSTI.";
+          reference
+           "13.27.33";
+          smiv2:max-access "read-write";
+          smiv2:oid "0.6.1.4.1.7";
+        }
+		
+        leaf ieee8021MstpPortDesignatedRoot {
+		  config false;
+          type BridgeId;
+          description
+           "In an MSTP Bridge, the Regional Root Identifier component of the
+            Port's MSTI port priority vector, as defined in 13.11, for the MSTI.";
+          reference
+           "13.27.47";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.4.1.8";
+        }
+
+        leaf ieee8021MstpPortDesignatedCost {
+		  config false;
+          type int32;
+          description
+           "In an MSTP Bridge, the Internal Root Path Cost component of the
+            Port's MSTI port priority vector, as defined in 13.11, for the MSTI.";
+          reference
+           "13.27.47";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.4.1.9";
+        }
+
+        leaf ieee8021MstpPortDesignatedBridge {
+		  config false;
+          type BridgeId;
+          description
+           "In an MSTP Bridge, the Designated Bridge Identifier component of
+            the Port's MSTI port priority vector, as defined in 13.11, for
+            the MSTI.";
+          reference
+           "13.27.47";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.4.1.10";
+        }
+
+        leaf ieee8021MstpPortDesignatedPort {
+		  config false;
+		  type IEEE8021BridgePortNumber;
+          description
+           "In an MSTP Bridge, the Designated Port Identifier component of the
+            Port's MSTI port priority vector, as defined in 13.11, for the MSTI.";
+          reference
+           "13.27.47";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.4.1.11";
+        }
+
+        leaf ieee8021MstpPortRole {
+		  config false;
+          type enumeration {
+		    enum "disabled" {
+              value "0";
+            }
+            enum "root" {
+              value "1";
+            }
+            enum "alternate" {
+              value "2";
+            }
+            enum "designated" {
+              value "3";
+            }
+            enum "backup" {
+              value "4";
+            }
+          }
+          description
+           "In an MSTP Bridge, the current Port Role for the Port (i.e., Root,
+            Alternate, Designated, or Backup), for the MSTI.";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.4.1.12";
+        }
+
+        leaf ieee8021MstpPortDisputed {
+		  config false;
+          type boolean;
+          description
+           "In an MSTP Bridge, the current value of the disputed variable for
+            the MSTI for the Port.";
+          reference
+           "13.27.22, and 17.19.6 of IEEE Std 802.1D";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.4.1.13";
+        }
+      }
+    }
+
+/*
+    container ieee8021MstpFidToMstiTable {
+      status deprecated;
+      description
+       "In an MSTP Bridge, the fixed-length FID to MSTID Allocation Table
+        entry. Each entry in the Table corresponds to a FID, and the value
+        of the entry specifies the MSTID of the spanning tree to which the
+        set of VLANs supported by that FID are assigned. A value of zero
+        in an entry specifies that the set of VLANs supported by that FID
+        are assigned to the CST.
+        
+        The values of all writable objects in this table MUST be
+        retained across reinitializations of the management system.
+        
+        Note that entries will exist in this table only for bridge
+        components for which the corresponding instance of
+        ieee8021SpanningTreeVersion (from the IEEE8021-SPANNING-TREE-MIB)
+        has a value of mstp(2).";
+      reference
+       "12.12.2";
+      smiv2:oid "0.6.1.5";
+
+      list ieee8021MstpFidToMstiEntry {
+        key "ieee8021MstpFidToMstiComponentId ieee8021MstpFidToMstiFid";
+        status deprecated;
+        description
+         "In an MSTP Bridge, a FID to MSTID Allocation Table entry.";
+        smiv2:oid "0.6.1.5.1";
+
+        leaf ieee8021MstpFidToMstiComponentId {
+		  type IEEE8021PbbComponentIdentifier;
+          status deprecated;
+          description
+           "The component identifier is used to distinguish between the
+            multiple virtual bridge instances within a PBB.  In simple
+            situations where there is only a single component the default
+            value is 1.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.5.1.1";
+        }
+
+        leaf ieee8021MstpFidToMstiFid {
+          type uint32 {
+            range "1..4094";
+          }
+          status deprecated;
+          description
+           "In an MSTP Bridge, the FID of the entry in the FID to MSTID
+            Allocation Table.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.5.1.2";
+        }
+
+        leaf ieee8021MstpFidToMstiMstId {
+		  type IEEE8021MstIdentifier;
+          status deprecated;
+          description
+           "In an MSTP Bridge, the MSTID to which the FID (of the entry in
+            the FID to MSTID Allocation Table) is to be allocated.";
+          smiv2:max-access "read-write";//RW
+          smiv2:oid "0.6.1.5.1.3";
+        }
+      }
+    }
+*/
+
+    container ieee8021MstpConfigIdTable {
+      description
+       "A table containing the MST Configuration Identifier for each
+        virtual bridge.  In simple situations where there is only
+        a single component, there will only be a single entry in
+        this table (i.e., only a single MST Configuration Identifier).
+        
+        The values of all writable objects in this table MUST be
+        retained across reinitializations of the management system.
+        
+        Note that entries will exist in this table only for bridge
+        components for which the corresponding instance of
+        ieee8021SpanningTreeVersion (from the IEEE8021-SPANNING-TREE-MIB)
+        has a value of mstp(2).";
+      reference
+       "12.12.3.3, 12.12.3.4";
+      smiv2:oid "0.6.1.7";
+
+      list ieee8021MstpConfigIdEntry {
+        key "ieee8021MstpConfigIdComponentId";
+        description
+         "An entry contining the MST Configuration Identifier of a bridge.";
+        smiv2:oid "0.6.1.7.1";
+
+        leaf ieee8021MstpConfigIdComponentId {
+		  type IEEE8021PbbComponentIdentifier;
+          description
+           "The component identifier is used to distinguish between the
+            multiple virtual bridge instances within a PBB.  In simple
+            situations where there is only a single component the default
+            value is 1.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.7.1.1";
+        }
+
+        leaf ieee8021MstpConfigIdFormatSelector {
+          type int32 {
+            range "0";
+          }
+          description
+           "In an MSTP Bridge, the Configuration Identifier Format Selector
+            in use by the Bridge, in the MST Configuration Identifier. This
+            has a value of 0 to indicate the format specified in IEEE Std 802.1Q.";
+          reference
+           "13.8:1";
+          smiv2:max-access "read-write";//RW
+          smiv2:oid "0.6.1.7.1.2";
+        }
+
+        leaf ieee8021MstpConfigurationName {
+          type SnmpAdminString {
+          //  length "32";
+          }
+          description
+           "In an MSTP Bridge, the Configuration Name in the MST
+            Configuration Identifier.";
+          reference
+           "13.8:2";
+          smiv2:max-access "read-write";//RW
+          smiv2:oid "0.6.1.7.1.3";
+        }
+
+        leaf ieee8021MstpRevisionLevel {
+          type uint32 {
+            range "0..65535";
+          }
+          description
+           "In an MSTP Bridge, the Revision Level in the MST
+            Configuration Identifier.";
+          reference
+           "13.8:3";
+          smiv2:max-access "read-write";//RW
+          smiv2:oid "0.6.1.7.1.4";
+        }
+
+        leaf ieee8021MstpConfigurationDigest {
+          type binary {
+            length "16";
+          }
+          description
+           "In an MSTP Bridge, the Configuration Digest in the MST
+            Configuration Identifier.";
+          reference
+           "13.8:4";
+          smiv2:max-access "read-only";
+          smiv2:oid "0.6.1.7.1.5";
+        }
+      }
+    }
+
+/*
+    container ieee8021MstpFidToMstiV2Table {
+      description
+       "In an MSTP Bridge, the fixed-length FID to MSTID Allocation Table
+        entry. Each entry in the Table corresponds to a FID, and the value
+        of the entry specifies the MSTID of the spanning tree to which the
+        set of VLANs supported by that FID are assigned. A value of zero
+        in an entry specifies that the set of VLANs supported by that FID
+        are assigned to the CST.
+        
+        The values of all writable objects in this table MUST be
+        retained across reinitializations of the management system.
+        
+        Note that entries will exist in this table only for bridge
+        components for which the corresponding instance of
+        ieee8021SpanningTreeVersion (from the IEEE8021-SPANNING-TREE-MIB)
+        has a value of mstp(2).";
+      reference
+       "12.12.2";
+      smiv2:oid "0.6.1.9";
+
+      list ieee8021MstpFidToMstiV2Entry {
+        key "ieee8021MstpFidToMstiV2ComponentId ieee8021MstpFidToMstV2Fid";///LOOK IT!
+        description
+         "In an MSTP Bridge, a FID to MSTID Allocation Table entry.";
+        smiv2:oid "0.6.1.9.1";
+
+        leaf ieee8021MstpFidToMstiV2ComponentId {
+		  type IEEE8021PbbComponentIdentifier;
+          description
+           "The component identifier is used to distinguish between the
+            multiple virtual bridge instances within a PBB.  In simple
+            situations where there is only a single component the default
+            value is 1.";
+          smiv2:max-access "not-accessible";
+          smiv2:oid "0.6.1.9.1.1";
+        }
+
+        leaf ieee8021MstpFidToMstV2Fid {
+          type uint32 {
+            range "0..4095";
+          }
+          description
+           "In an MSTP Bridge, the MSTID to which the FID (of the entry in
+            the FID to MSTID Allocation Table) is to be allocated.
+            In an SPT Bridge, the value 4095 is used to indicate unused
+            (non-filtering) FIDs.";
+          smiv2:max-access "read-write";//RW
+          smiv2:oid "0.6.1.9.1.3";
+        }
+      }
+    }
+*/
+  }
+
+/*
+  smiv2:alias "ieee8021MstpCistPortExtensionTable" {
+    description
+     "The CIST Port Extensions Table. Each row in the Table represents information
+      regarding a specific Port within the Bridge's Bridge Protocol
+      Entity, for the CIST.";
+    reference
+     "12.8.2";
+    smiv2:oid "0.6.1.8";
+  }
+
+  smiv2:alias "ieee8021MstpCistPortExtensionEntry" {
+    description
+     "A list of additional objects containing information 
+      maintained by every port about the CIST 
+      state for that port.";
+    smiv2:oid "0.6.1.8.1";
+  }
+
+  augment "/ieee8021-mstp:ieee8021-mstp/ieee8021-mstp:ieee8021MstpCistPortTable/ieee8021-mstp:ieee8021MstpCistPortEntry" {
+    description
+     "A list of additional objects containing information 
+      maintained by every port about the CIST 
+      state for that port.";
+    smiv2:oid "0.6.1.8.1";
+
+    leaf ieee8021MstpCistPortAutoEdgePort {
+      type boolean;
+      description
+       "The administrative value of the Auto Edge Port parameter.
+        A value of true(1) indicates if the bridge detection state 
+        machine (BDM, 13.31) is to detect other bridges
+        attached to the LAN, and set 
+        ieee8021SpanningTreeRstpPortOperEdgePort automatically.
+        The default value is true(1)
+        
+         This is optional and provided only by implementations 
+         that support the automatic identification of edge ports.
+        
+        The value of this object MUST be retained across
+        reinitializations of the management system.";
+      reference
+       "12.8.2.1.3 )";
+      smiv2:max-access "read-write";
+      smiv2:oid "0.6.1.8.1.1";
+    }
+
+    leaf ieee8021MstpCistPortAutoIsolatePort {
+      type boolean;
+      description
+       "The operational value of the Isolate Port parameter.  
+        
+        A value of true(1) indicates a Designated Port will 
+        transition to discarding if both 
+        ieee8021SpanningTreeRstpPortAdminEdgePort and 
+        ieee8021SpanningTreeRstpPortAutoEdgePort are FALSE and 
+        the other bridge presumed to be attached to the same 
+        point-to-point LAN does not transmit periodic BPDUs.
+        
+        This is optional and provided only by implementations 
+        that support the automatic identification of fragile
+        bridges.";
+      reference
+       "12.8.2.1.3";
+      smiv2:max-access "read-only";
+      smiv2:oid "0.6.1.8.1.2";
+    }
+  }
+
+  smiv2:alias "ieee8021MstpMib" {
+    smiv2:oid "0.6";
+  }
+
+  smiv2:alias "ieee8021MstpNotifications" {
+    smiv2:oid "0.6.0";
+  }
+
+  smiv2:alias "ieee8021MstpObjects" {
+    smiv2:oid "0.6.1";
+  }
+
+  smiv2:alias "ieee8021MstpConformance" {
+    smiv2:oid "0.6.2";
+  }
+
+  smiv2:alias "ieee8021MstpGroups" {
+    smiv2:oid "0.6.2.1";
+  }
+
+  smiv2:alias "ieee8021MstpCompliances" {
+    smiv2:oid "0.6.2.2";
+  }
+*/
+}
+
+
+

@@ -1,0 +1,736 @@
+// Contents of "ieee802-dot1CB"
+module ieee802-dot1CB{
+    namespace urn:ieee:std:802.1Q:yang:ieee802-dot1CB;
+    prefix "dot1CB";
+   
+    import ieee802-types {
+        prefix ieee;
+      }
+    import ietf-yang-types {
+        prefix yang;
+    }
+    import ietf-interfaces {
+        prefix if;
+    }
+    import ieee802-dot1q-types {
+        prefix dot1qtypes;
+    }
+    import ieee802-dot1q-bridge {
+          prefix dot1q;
+    }
+
+    description "Yang model for IEEE802.1CB";
+
+    revision 2019-04-17 {
+        description "Initial revision";
+    }
+    
+    revision 2020-03-31 {
+        description
+            "Leaf max-concurrent-stream changed to config false.
+             Prefix of imported ieee802-dot1q-bridge module changed from dot1q-bridge to dot1q.
+             The leaf index added as a key in the frer-seg-gen-entry.
+             The leaf index deleted from the sequence-identification-list list.
+             The leaf port set as a key inside sequence-identification-list list.";
+    }
+
+    typedef stream-identification-type {
+        type enumeration {
+          enum null-stream {
+        	  value "1";
+              description
+                "Null stream identification";
+          }
+          enum source-mac {
+        	  value "2";
+              description
+               "Source MAC and VLAN Stream identification";
+          }
+          enum active-identification {
+        	  value "3";
+              description
+              "Active Destination MAC and VLAN Stream
+            	  identification";
+          }
+          enum ip-identification {
+        	  value "4";
+              description
+                "IP Stream identification";
+          }
+          
+        }
+        description "An enumerated value indicating the method used to identify packets
+
+                belonging to the Stream. The enumeration includes an Organizationally
+
+                Unique Identifier (OUI) or Company ID (CID) to identify the organization
+
+                defining the enumerated type.";
+        reference
+          "9.1.1.6";
+      }
+    typedef stream-tagged {
+    	type enumeration {
+   		 enum tagged {
+   			 description "A frame must have a VLAN tag to be recognized as belonging to the Stream.";
+   		 }
+   		 enum priority {
+   			 description "A frame must be untagged, or have a VLAN tag with a VLAN ID = 0 to be
+   				 recognized as belonging to the Stream.";
+   		 }
+   		 enum all {
+   			 description 
+   				 "A frame is recognized as belonging to the Stream whether tagged or not.";
+   		 }
+   	 }
+    }
+    typedef tsn-stream-id-handle-type {
+    	type uint64;
+    	description "tsnStreamIdHandle object";
+    }
+    typedef stream-direction {
+    	type enumeration {
+			enum "out-facing" {
+				description "The sequence generation function is placed in the out-facing side of the port";
+				value 1;
+			}
+			enum "in-facing" {
+				description "The sequence generation function is placed in the in-facing side of the port";
+				value 0;
+			}
+    	}
+    }
+    grouping frer-sequence-recovery-entry {
+    	leaf-list stream-list {
+        	type tsn-stream-id-handle-type;
+        	description "A list of the stream_handle values, corresponding to the values of the tsnStreamIdHandle objects (9.1.1.1) in
+        		the Stream identity table (9.1), to which the system is to apply the instance of the Sequence recovery
+        		function (7.4.2) or Individual recovery function (7.5).";
+        	reference "10.4.1.2";
+        	
+        }
+        leaf-list port-list {
+        	type if:interface-ref;
+        	description "The list of ports on each of which the system is to instantiate the Sequence recovery function (7.4.2), or from
+        		which received packets are to be fed to a single instance of the Individual recovery function (7.5).";
+        	reference "10.4.1.2";
+        }
+        leaf direction {
+        	type stream-direction;
+        	description "A Boolean object indicating whether the Sequence recovery function (7.4.2) or Individual recovery function
+        		(7.5) is to be placed on the out-facing (True) or in-facing (False) side of the port (Figure 6-6).";
+        	reference "10.4.1.3";
+        }
+        leaf reset {
+        	type boolean;
+        	description "A Boolean object indicating that the Sequence recovery function (7.4.2) or Individual recovery function
+        		(7.5) is to be reset by calling its corresponding SequenceGenerationReset function (7.4.1.3). Writing the
+        		value True to frerSeqRcvyReset triggers a reset; writing the value False has no effect. When read,
+        		frerSeqRcvyReset always returns the value False.";
+        	reference "10.4.1.4";
+        }
+        leaf algorithm {
+        	type enumeration {
+        		enum "vector-alg" {
+        			value  "0";
+        			description "VectorRecoveryAlgorithm";        			
+        		}
+        		enum "match-alg" {
+        			value  "1";
+        			description "MatchRecoveryAlgorithm";
+        		}        		
+        	}
+        	description "This object is an enumerated value specifying which sequence recovery algorithm is to be used for this
+    			instance of the Sequence recovery function (7.4.2). The enumeration uses an OUI or CID as shown in
+    			Table 10-1. The default value for frerSeqRcvyAlgorithm is Vector_Alg (00-80-C2, 0).";
+    		reference "10.4.1.5";
+        }
+    	leaf history-length {
+    		type int32;
+    		default 2;
+    		description "An integer specifying how many bits of the SequenceHistory variable (7.4.3.2.2) are to be used. The
+    			minimum and the default value is 2, maximum is the maximum allowed by the implementation. [Not used if
+    			frerSeqRcvyAlgorithm (10.4.1.5) = Match_Alg (00-80-C2, 1).]";
+    		reference "10.4.1.6";
+    	}
+    	leaf reset-msec {
+    		type uint32;
+    		description "An unsigned integer specifying the timeout period in milliseconds for the RECOVERY_TIMEOUT event
+    			(item c in 7.4.3.1).";
+    		reference "10.4.1.7";
+    	}
+    	leaf invalid-sequence-value {
+    		type uint32;
+    		config false;
+    		description "A read-only unsigned integer value that cannot be encoded in a packet as a value for the sequence_number
+    			subparameter (item b in 6.1), i.e., frerSeqRcvyInvalidSequenceValue is larger than or equal to
+    			RecovSeqSpace (7.4.3.2.1).";
+    		reference "10.4.1.8";
+    	}
+    	leaf take-no-sequence {
+    		type boolean;
+    		description "A Boolean value specifying whether packets with no sequence_number subparameter are to be accepted
+    			(True) or not (False). Default value False. See item i in 7.1.1.";
+    		reference "10.4.1.9";    		
+    	}
+    	leaf individual-recovery {
+    		type boolean;
+    		description "A Boolean value specifying whether this entry describes a Sequence recovery function (7.4.2) or Individual
+    			recovery function (7.5).
+    			a) True: The entry describes an Individual recovery function (7.5). Packets discarded by the
+    			SequenceGenerationAlgorithm (7.4.1.4) will cause the variable RemainingTicks (7.4.3.2.4) to be
+    			reset. There is no Latent error detection function (7.4.4) associated with this entry, so
+    			frerSeqRcvyLatentErrorDetection (10.4.1.11) cannot also be True.
+    			b) False: The entry describes a Sequence recovery function (7.4.2). Packets discarded by the
+    			SequenceGenerationAlgorithm (7.4.1.4) will not cause the variable RemainingTicks (7.4.3.2.4) to
+    			be reset.";
+    		reference "10.4.1.10";
+    	}
+    	leaf latent-error-detection {
+    		type boolean;
+    		description "instantiated along with the Base recovery function (7.4.3) in this Sequence recovery function (7.4.2) or
+    			Individual recovery function (7.5). frerSeqRcvyLatentErrorDetection cannot be set True if
+    			frerSeqRcvyIndividualRecovery (10.4.1.10) is also True; an Individual recovery function does not include a
+    			Latent error detection function.";
+    		reference "10.4.1.11";
+    	}
+    	container latent-error {
+    		leaf difference {
+    			type int32;
+    			description "An integer specifying the maximum difference between frerCpsSeqRcvyDiscardedPackets (10.8.6), and the
+    			product of frerCpsSeqRcvyPassedPackets (10.8.5) and (frerSeqRcvyLatentErrorPaths ) (10.4.1.12.3) that
+    			is allowed. Any larger difference will trigger the detection of a latent error by the LatentErrorTest function
+    			(7.4.4.4).";
+    			reference  "10.4.1.12.1";
+    		}
+    		leaf period {
+    			type uint32;
+    			default 2000;
+    			description "The integer number of milliseconds that are to elapse between instances of running the LatentErrorTest
+    				function (7.4.4.4). An implementation can have a minimum value for frerSeqRcvyLatentErrorPeriod, below
+    				which it cannot be set, but this minimum shall be no larger than 1000 ms (1 s). Default value 2000 (2 s)."; 
+    			reference "10.4.1.12.2";
+    				
+    		}
+    		leaf paths {
+    			type uint8;
+    			description "The integer number of paths over which FRER is operating for this instance of the Base recovery function
+    				(7.4.3) and Latent error detection function (7.4.4).";
+    			reference "10.4.1.12.3";
+    		}
+    		leaf reset-period {
+    			type uint32;
+    			default 30000;
+    			description "The integer number of milliseconds that are to elapse between instances of running the LatentErrorReset
+    				function (7.4.4.3). An implementation can have a minimum value for LatentErrorReset, below which it
+    				cannot be set, but this minimum shall be no larger than 1000 ms (1 s). Default value 30000 (30 s).";
+    			reference "10.4.1.12.4";
+    		}
+    	}
+    }
+    grouping frer-sequence-identification-entry {
+    	leaf-list stream-list {
+        	type tsn-stream-id-handle-type;
+        	description "A list of stream_handles, corresponding to the values of the tsnStreamIdHandle objects (9.1.1.1) in the
+        		Stream identity table (9.1), for which the system is to use the same encapsulation (10.5.1.5) for the Sequence
+        		encode/decode function.";
+        	reference "10.5.1.1";
+        	
+        }
+        leaf port {
+        	type if:interface-ref;
+        	description "The port on which the system is to place an instance of the Sequence encode/decode function (7.6).";
+        	reference "10.5.1.2";
+        }
+        leaf direction {
+        	type stream-direction;
+        	description "A Boolean object indicating whether the Sequence encode/decode function (7.6) is to be placed on the
+        		out-facing (True) or in-facing (False) side of the port (Figure 6-6).";
+        	reference "10.5.1.3";
+        }
+        leaf active {
+        	type boolean;
+        	description "A Boolean value specifying whether this frerSeqEncEntry is passive (False), and therefore is used only to
+        		decode (extract information from) input packets passing up the protocol stack, or active (True), and
+        		therefore is used both for recognizing input packets and for encoding output packets being passed down the
+        		protocol stack.";
+        	reference "10.5.1.4";        	
+        }
+        leaf encapsulation-type {
+        	type enumeration {
+        		enum "R-TAG" {
+        			value "1";
+        		    description "R-TAG is used";
+        		}
+        		enum "HSR" {
+        			value "2";
+            		description "HSR sequence tag is used";
+        		}
+        		enum "PRP" {
+        			value "3";
+            		description "PRP sequence trailer is used";
+        		}        		
+        	}
+        	description "An enumerated value indicating the type of encapsulation used for this instance of the Sequence encode/
+    			decode function (7.6). The type includes an OUI or CID. The values defined by this standard are shown in
+    			Table 10-2.";
+    		reference "10.5.1.5";
+        }
+        leaf path-id-lan-id {
+        	type uint8 {
+        		 range "0..15";
+        	}
+        	description "A 4-bit integer value to be placed in the PathId field of an HSR sequence tag (7.9) or the LanId field of a
+        		PRP sequence trailer (7.10) added to an output packet. This managed object is used only if:
+        		a) The HSR sequence tag or the PRP sequence trailer is selected by the frerSeqEncEncapsType object
+        		(10.5.1.5); and
+        		b) frerSeqEncActive (10.5.1.4) is False (passive)";
+        	reference "10.5.1.6";
+        }
+    }
+    grouping frer-split-entry {  
+	leaf port {
+          	type if:interface-ref;
+          	description "The port on which the system is to place an instance of the Stream splitting function (7.7) performing the
+          		stream_handle translations specified by frerSplitInputIdList and frerSplitOutputIdList (10.6.1.3, 10.6.1.4) is
+          		to be placed.";
+          	reference "10.6.1.1";
+          }
+    	  leaf direction {
+          	type stream-direction;
+          	description "A Boolean object indicating whether the instance of the Stream splitting function (7.7) performing the
+          		stream_handle translations specified by frerSplitInputIdList and frerSplitOutputIdList (10.6.1.3, 10.6.1.4) is
+          		to be placed on the out-facing (True) or in-facing (False) side of the port (Figure 6-6).";
+          	reference "10.6.1.2";
+          } 
+    	  leaf-list input-split-list {
+          	type tsn-stream-id-handle-type;
+          	description "A list of stream_handles (tsnStreamIdHandle values, 9.1.1.1) that are to be split.";
+          	reference "10.6.1.3";
+          	
+          }
+    	  leaf-list output-split-list {
+            	type tsn-stream-id-handle-type;
+            	description "A list of stream_handles (tsnStreamIdHandle values, 9.1.1.1) into which the input packet is to be split, one
+            		copy per item in the frerSplitOutputIdList.";
+            	reference "10.6.1.3";            	
+            }
+    	  
+    }
+    
+    augment "/dot1q:bridges/dot1q:bridge/dot1q:component" {
+    	container stream-identification {
+        description "Applies when a Bridge supports stream identification from IEEE802.1CB.";
+        leaf max-concurrent-stream {
+        	type uint16;
+        	config false;
+        	description "The maximum number of concurrent stream identification functions supported by the application";     	
+        }
+        list stream-handles {
+        	key "stream-handle";
+            description
+                "A set of managed objects, all applying to the Stream specified by tsnStreamIdHandle (9.1.1.1), and all using
+            	the same Stream identification types and parameters (9.1.1.6, 9.1.1.7).";
+            leaf stream-handle {
+            	type tsn-stream-id-handle-type;
+            	description "The objects in a given entry of the Stream identity table are
+
+                                used to control packets whose stream_handle subparameter is equal
+
+                                to the entrys tsnStreamIdHandle object. The specific values used
+
+                                in the tsnStreamIdHandle object are not necessarily used in the
+
+                                system; they are used only to relate the various management objects
+
+                                in Clause 9 and Clause 10.";
+            	reference
+            		"9.1.1.1";
+            }
+            leaf-list "in-facing-output-port-list" {
+            	type if:interface-ref;
+            	description "The list of ports on which an in-facing Stream identification function (6.2) using this identification method
+            		(9.1.1.6, 9.1.1.7) is to be placed for this Stream (9.1.1.1) in the output (towards the system forwarding
+            		function) direction. At most one tsnStreamIdEntry can list a given port for a given tsnStreamIdHandle in its
+            		tsnStreamIdInFacOutputPortList.";
+            	reference "9.1.1.2";
+            	
+            }
+            leaf-list "out-facing-output-port-list" {
+            	type if:interface-ref;
+            	description "The list of ports on which an out-facing Stream identification function (6.2) using this identification method
+            		(9.1.1.6, 9.1.1.7) is to be placed for this Stream (9.1.1.1) in the output (towards the physical interface)
+            		direction. At most one tsnStreamIdEntry can list a given port for a given tsnStreamIdHandle in its
+            		tsnStreamIdOutFacOutputPortList.";
+            	reference "9.1.1.3";
+            }
+            leaf-list "in-facing-input-port-list" {
+            	type if:interface-ref;
+            	description "The list of ports on which an in-facing Stream identification function (6.2) using this identification method
+            		(9.1.1.6, 9.1.1.7) is to be placed for this Stream (9.1.1.1) in the input (coming from the system forwarding
+            		function) direction. Any number of tsnStreamIdEntry objects can list the same port for the same
+            		tsnStreamIdHandle in its tsnStreamIdInFacInputPortList";
+            	reference "9.1.1.4";
+            }
+            leaf-list "out-facing-input-port-list" {
+            	type if:interface-ref;
+            	description "The list of ports on which an out-facing Stream identification function (6.2) using this identification method
+            		(9.1.1.6, 9.1.1.7) is to be placed for this Stream (9.1.1.1) in the input (coming from the physical interface)
+            		direction. Any number of tsnStreamIdEntry objects can list the same port for the same tsnStreamIdHandle in
+            		its tsnStreamIdOutFacInputPortList.";
+            	reference "9.1.1.5";
+            }
+            leaf "tsn-stream-identication-type" {
+            	type stream-identification-type;
+                description
+                    "An enumerated value indicating the method used to identify packets belonging to the Stream. The
+                  	enumeration includes an Organizationally Unique Identifier (OUI) or Company ID (CID) to identify the
+                  	organization defining the enumerated type.";
+                  reference
+                    "9.1.1.6";
+            }
+            choice tsn-stream-id-type {
+                description
+                    "Type of stream identification";
+                  container null-stream-identification-entry {
+                     description
+                       "Null stream identification attributes.";
+                     leaf destination-mac {
+                         type ieee:mac-address; 
+                         description
+                        	 "Specifies the destination_address that identifies a packet in an EISS indication primitive, to the Null Stream
+                        	 identification function.";
+                         reference "9.1.2.1";
+                     }
+                     leaf tagged {
+                    	 type stream-tagged;
+                    	 description "An enumerated value indicating whether a packet in an EISS indication
+
+                                                primitive to the Null Stream identification function is permitted
+
+                                                to have a VLAN tag.";
+                    	 reference "9.1.2.2";
+                    		 
+                     }
+                     leaf vlan {
+                    	 type dot1qtypes:vlanid;
+                         description "Specifies the vlan_identifier parameter that identifies a packet in an EISS indication primitive to the Null
+                    			 Stream identification function. A value of 0 indicates that the vlan_identifier parameter is ignored on EISS
+                    			 indication primitives.";
+                         reference "9.1.2.3";
+                    		 
+                    	 
+                     }
+                  }
+                  container source-mac-identification-entry {
+                      description
+                        "Source MAC and VLAN Stream identification attributes.";
+                      leaf source-mac {
+                    	  type ieee:mac-address; 
+                    	  description "Specifies the source_address that identifies a packet in an EISS
+
+                                                indication primitive, to the Source MAC and VLAN Stream identification
+
+                                                function.";
+                      }
+                      leaf  tagged {
+                     	 type stream-tagged;
+                     	 description "An enumerated value indicating whether a packet in an EISS indication
+                                      primitive to the Null Stream identification function is permitted
+                                      to have a VLAN tag.";
+                     	 reference "9.1.3.2";
+                     		 
+                      }
+                      leaf vlan {
+                     	 type dot1qtypes:vlanid;
+                     	 description "Specifies the vlan_identifier parameter that identifies a packet in an EISS indication primitive to the Source
+                     		MAC and VLAN Stream identification function. A value of 0 indicates that the vlan_identifier parameter is
+                     		ignored on EISS indication primitives.";
+                     	 reference "9.1.3.3";
+                     	 
+                      }
+                  }
+                  container active-destination-mac-identification-entry {
+                	  description "Active destination MAC and VLAM stream identification";
+                	  leaf upper-destination-mac {
+                		  type ieee:mac-address; 
+                		  description "Specifies the destination_address parameter to use in the EISS request primitive for output packets sent to
+                			  lower layers by the Active Destination MAC and VLAN Stream identification function, and the destination_address that identifies an input packet in an EISS indication primitive to the Active Destination
+                			  MAC and VLAN Stream identification function.";
+                		  reference "9.1.4.1";
+                	  }
+                	  leaf upper-tagged {
+                     	 type stream-tagged;
+                      	 description "An enumerated value indicating whether a packet in an EISS indication
+                                                  primitive to the Null Stream identification function is permitted
+                                                  to have a VLAN tag.";
+                      	 reference "9.1.4.2";
+                      		 
+                       }
+                	  leaf upper-vlan {
+                		  type dot1qtypes:vlanid;
+                      	 description "Specifies the vlan_identifier parameter to use in the EISS request primitive for output packets sent to lower
+                      		layers by the Active Destination MAC and VLAN Stream identification function, and the vlan_identifier
+                      		that identifies an input packet in an EISS indication primitive to the Active Destination MAC and VLAN
+                      		Stream identification function. A value of 0 indicates that the vlan_identifier parameter is ignored on EISS
+                      		indication primitives.";
+                      	 reference "9.1.4.3";
+                	  }
+                	  leaf upper-priority {
+                	      type dot1qtypes:priority-type;
+                		  description "Specifies the priority parameter to use in the EISS request primitive for output packets sent to lower layers
+                			  by the Active Destination MAC and VLAN Stream identification function for all packets in a particular
+                			  Stream.";
+                		  reference "9.1.4.4";
+                	  }
+                	  leaf lower-destination-mac {
+                		  type ieee:mac-address; 
+                		  description "Specifies the destination_address parameter to use in the EISS indication primitive for input packets offered
+                			  to upper layers by the Active Destination MAC and VLAN Stream identification layer. This address
+                			  replaces the address that was used to identify the packet (tsnCpeDmacVlanDownDestMac, 9.1.4.1).";
+                		  reference "9.1.4.5";
+                	  }
+                	  leaf lower-tagged {
+                     	 type stream-tagged;
+                     	description "An enumerated value indicating whether a packet in an EISS indication or request primitive between the
+                     		Active Destination MAC and VLAN Stream identification function and the upper layers is to have a VLAN
+                     		tag.";
+              		  reference "9.1.4.6";
+                	  }
+                	  leaf lower-vlan {
+                		  type dot1qtypes:vlanid;
+                		  description "Specifies the vlan_identifier parameter to use in the EISS indication primitive for packets offered to upper
+                			  layers, or the VLAN ID field for an IEEE 802.1Q tag in an ISS mac_service_data_unit. This address
+                			  replaces the VLAN ID that was used to identify the packet (tsnCpeDmacVlanDownVlan, 9.1.4.3).";
+                		  reference "9.1.4.7";
+                	  }
+                  }
+            }
+        }
+    	}
+     }
+    augment "/if:interfaces/if:interface" {
+    	 description "Operational per-port per-Stream Stream identification counters";
+    	 container stream-identification-statistics {
+    	 	 config false;
+    	 list per-stream-identification-statistics {
+         	key "stream-handle";
+             description
+                 "A set of managed objects, all applying to the Stream specified by tsnStreamIdHandle (9.1.1.1), and all using
+             	the same Stream identification types and parameters (9.1.1.6, 9.1.1.7).";
+             leaf stream-handle {
+            	type tsn-stream-id-handle-type;
+             	description "The objects in a given entry of the Stream identity table are
+                                 used to control packets whose stream_handle subparameter is equal
+                                 to the entrys tsnStreamIdHandle object. The specific values used
+                                 in the tsnStreamIdHandle object are not necessarily used in the
+                                 system; they are used only to relate the various management objects
+                                 in Clause 9 and Clause 10.";
+             	reference
+             		"9.1.1.1";
+             }
+             leaf input-packets {
+            	   type yang:counter64;
+              	   description "The tsnCpsSidInputPackets counter is incremented once for each packet identified by the Stream
+              		 identification function (6.2).";
+              	   reference "9.2.1";
+             }
+             leaf output-packets {
+          	   type yang:counter64;
+            	   description "The tsnCpsSidOutputPackets counter is incremented once for each packet passed down the stack by the
+            		   Stream identification function (6.2).";
+            	   reference "9.2.2";
+           }
+
+        }
+    	leaf  input-packets {
+    	   type yang:counter64;
+      	   description "The tsnCpSidInputPackets counter is incremented once for each packet identified by any Stream
+      		 identification function (6.2) on this port. Its value equals the sum (modulo the size of the counters) of all of
+      		 the tsnCpsSidInputPackets (9.2.1) counters on this same port.";
+      	   reference "9.3.1";
+    	}
+    	leaf  output-packets {
+     	   type yang:counter64;
+       	   description "The tsnCpSidOutputPackets counter is incremented once for each packet passed down the stack by any
+       		Stream identification function (6.2) on this port. Its value equals the sum (modulo the size of the counters) of
+       		all of the tsnCpsSidOutputPackets (9.2.2) counters on this same port.";
+       	   reference "9.3.2";
+     	}
+    	 }
+     }
+    augment "/dot1q:bridges/dot1q:bridge/dot1q:component" {
+    	container frer {
+            leaf max-concurrent-frer {
+              	type uint16;
+              	description "The maximum number of concurrent FRER functions supported by the implementation";     	
+             }
+		    container sequence-generation-list {
+		    	description "There is one Sequence generation table in a system, and one entry in the Sequence generation table for each
+		    		Sequence generation function (7.4.1).";
+		    	list frer-seg-gen-entry {
+					key "index";
+					leaf index {
+					  type uint32;
+					  description
+						"This index is provided in order to provide a unique key
+						per list entry.
+						
+						The value of index for each entry shall be unique (but not
+						neccesarily contiguous).";
+					}
+		    		leaf-list stream-list {
+		    			type tsn-stream-id-handle-type;
+		    			description "A list of stream_handle values, corresponding to the values of the tsnStreamIdHandle objects (9.1.1.1) in the
+		    				Stream identity table (9.1), on which this instance of the Sequence generation function (7.4.1) is to operate.
+		    				The single instance of the Sequence generation function created by this frerSeqGenEntry operates every
+		    				packet belonging to this Stream, regardless of the port on which it is received.";
+		    			reference "10.3.1.1";
+		    		}
+		    		leaf direction {
+		    			type stream-direction;
+		    			description "An object indicating whether the Sequence generation function (7.4.1) is to be placed on the
+		    				out-facing (True) or in-facing (False) side of the port (Figure 6-6).";
+		    			reference "10.3.1.2";
+		    		}
+		    	}
+		    }
+		    list sequence-recovery-list {
+		    	 key "index";
+ 			leaf index {
+			  type uint32;
+			  description
+			    "This index is provided in order to provide a unique key
+			    per list entry.
+			    
+			    The value of index for each entry shall be unique (but not
+			    neccesarily contiguous).";
+			}
+		    	uses frer-sequence-recovery-entry;
+		    }
+		    list sequence-identification-list {
+		    	key port;
+		    	uses frer-sequence-identification-entry;
+		    }
+		    list frer-split-list {
+			key port;   
+		    	uses frer-split-entry;
+		    }
+    	}
+     }
+    augment "/if:interfaces/if:interface" {
+    	list frer-per-port-per-stream-statistics {
+		key "stream-handle";
+ 	 	config false;                
+		description
+                    "A set of managed objects, all applying to the Stream specified by tsnStreamIdHandle (9.1.1.1), and all using
+                	the same Stream identification types and parameters (9.1.1.6, 9.1.1.7).";
+                leaf stream-handle {
+                	type tsn-stream-id-handle-type;
+                	description "The objects in a given entry of the Stream identity table are
+                                    used to control packets whose stream_handle subparameter is equal
+                                    to the entrys tsnStreamIdHandle object. The specific values used
+                                    in the tsnStreamIdHandle object are not necessarily used in the
+                                    system; they are used only to relate the various management objects
+                                    in Clause 9 and Clause 10.";
+                	reference
+                		"9.1.1.1";
+                    	 }
+	    	 container statistics {
+	    		 config false;
+	    		 leaf sequence-generation-reset {
+	    			 type yang:counter64;
+	    			 description "The frerCpsSeqGenResets counter is incremented each time the SequenceGenerationReset function
+	    				 (7.4.1.3) is called.";
+	    			 reference "10.8.2";     				 
+	    		 }
+	    		 leaf out-of-order-packets {
+	    			 type yang:counter64;
+	    			 description "The frerCpsSeqRcvyOutOfOrderPackets counter is incremented once for each packet accepted out-of-order
+	    				 by the VectorRecoveryAlgorithm (7.4.3.4) or MatchRecoveryAlgorithm (7.4.3.5). Out-of-order means that
+	    				 the packets sequence number is not one more than the previous packet received. (See item m in 7.1.1.)";
+	    			 reference "10.8.3";
+	    		 }
+	    		 leaf rogue-packets {
+	    			 type yang:counter64;
+	    			 description "The frerCpsSeqRcvyRoguePackets counter is incremented once for each packet discarded by the
+	    				 VectorRecoveryAlgorithm (7.4.3.4) because its sequence_number subparameter is more than
+	    				 frerSeqRcvyHistoryLength (10.4.1.6) from RecovSeqNum (7.4.3.2.3).";
+	    			 reference "10.8.4";
+	    		 }
+	    		 leaf passed-packets {
+	    			 type yang:counter64;
+	    			 description "The frerCpsSeqRcvyPassedPackets counter is incremented once for each packet passed up the stack by the
+	    				 VectorRecoveryAlgorithm (7.4.3.4) or MatchRecoveryAlgorithm (7.4.3.5).";
+	    			 reference "10.8.5";
+	    		 }
+	    		 leaf discarded-packets {
+	    			 type yang:counter64;
+	    			 description "The frerCpsSeqRcvyDiscardedPackets counter is incremented once for each packet discarded due to a
+	    				 duplicate sequence number by the VectorRecoveryAlgorithm (7.4.3.4) or MatchRecoveryAlgorithm
+	    				 (7.4.3.5).";
+	    			 reference "10.8.6";
+	    		 }
+	    		 leaf lost-packets {
+	    			 type yang:counter64;
+	    			 description "The frerCpsSeqRcvyLostPackets counter is incremented once for each packet lost by the
+	    				 VectorRecoveryAlgorithm (7.4.3.4). A packet is counted as lost if its sequence number is not received on
+	    				 any ingress port.";
+	    			 reference "10.8.7";
+	    		 }
+	    		 leaf tagless-packets {
+	    			 type yang:counter64;
+	    			 description "The frerCpsSeqRcvyTaglessPackets counter is incremented once for each packet received by the
+	    				 VectorRecoveryAlgorithm (7.4.3.4) that has no sequence_number subparameter (item b in 6.1).";
+	    			 reference "10.8.8";
+	    		 }
+	    		 leaf resets {
+	    			 type yang:counter64;
+	    			 description "The frerCpsSeqRcvyResets counter is incremented once each time the SequenceRecoveryReset function
+	    				 (7.4.3.3) is called.";
+	    			 reference "10.8.9";
+	    		 }
+	    		 leaf latent-error-resets {
+	    			 type yang:counter64;
+	    			 description "The frerCpsSeqRcvyLatentErrorResets counter is incremented once each time the LatentErrorReset
+	    				 function (7.4.4.3) is called.";
+	    			 reference "10.8.10";
+	    		 }
+	    		 leaf errored-packets {
+	    			 type yang:counter64;
+	    			 description "The frerCpsSeqEncErroredPackets counter is incremented once each time the Sequence encode/decode
+	    				 function (7.6) receives a packet that it is unable to decode successfully.";
+	    			 reference "10.8.11";
+	    		 }
+	    	 }
+    	 }
+    	 container per-port-frer-statistics {
+	 	 config false;
+    		 leaf passed-packets {
+    			 type yang:counter64;
+    			 description "The frerCpSeqRcvyPassedPackets counter is incremented once for each packet passed up the stack by the
+    				 VectorRecoveryAlgorithm (7.4.3.4) or MatchRecoveryAlgorithm (7.4.3.5). Its value equals the sum
+    				 (modulo the size of the counters) of all of the frerCpsSeqRcvyPassedPackets (10.8.5) counters on this same
+    				 port.";
+    			 reference "10.9.1";
+    		 }
+    		 leaf discarded-packets {
+    			 type yang:counter64;
+    			 description "The frerCpSeqRcvyDiscardPackets counter is incremented once for each packet discarded due to a duplicate
+    				 sequence number or for being a rogue packet by any VectorRecoveryAlgorithm (7.4.3.4) or
+    				 MatchRecoveryAlgorithm (7.4.3.5) on this port. Its value equals the sum (modulo the size of the counters)
+    				 of all of the frerCpsSeqRcvyRoguePackets (10.8.4) and frerCpsSeqRcvyDiscardedPackets (10.8.6) counters
+    				 on this same port.";
+    			 reference "10.9.2";
+    		 }
+    		 leaf errored-packets {
+    			 type yang:counter64;
+    			 description "The frerCpSeqEncErroredPackets counter is incremented once each time the Sequence encode/decode
+    				 function (7.6) receives a packet that it is unable to decode successfully. Its value equals the sum (modulo the
+    				 size of the counters) of all of the frerCpsSeqEncErroredPackets (10.8.11) counters on this same port.";
+    			 reference "10.9.3";
+    		 }
+    	 }
+     }
+    
+}
