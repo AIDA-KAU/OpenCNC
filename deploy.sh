@@ -161,8 +161,8 @@ if [ $DELETED_OPEN_CNC -eq 1 ]; then
 		cd "${DIR}opencnc_main-service"
 
 		# Start processes in background and supress all output from it
-		make deploy > /dev/null 2>&1 &
-		PROC_MAIN_DEPLOY=$!
+		# make deploy > /dev/null 2>&1 &
+		# PROC_MAIN_DEPLOY=$!
 
 		make kind > /dev/null 2>&1 &
 		PROC_MAIN_KIND=$!
