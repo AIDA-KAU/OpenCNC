@@ -1,0 +1,18 @@
+[submodule "opencnc_main-service"]
+	path = opencnc_main-service
+	url = https://git.cse.kau.se/hamzchah/opencnc_main-service.git
+[submodule "opencnc_tsn-service"]
+	path = opencnc_tsn-service
+	url = https://git.cse.kau.se/hamzchah/opencnc_tsn-service.git
+[submodule "opencnc_monitor-service"]
+	path = opencnc_monitor-service
+	url = https://git.cse.kau.se/hamzchah/opencnc_monitor-service.git
+[submodule "opencnc_gnmi-netconf-adapter"]
+	path = opencnc_gnmi-netconf-adapter
+	url = https://git.cse.kau.se/hamzchah/opencnc_gnmi-netconf-adapter.git
+[submodule "config-subsystem"]
+	path = config-subsystem
+	url = https://git.cse.kau.se/hamzchah/config-subsystem.git
+[submodule "topology-subsystem"]
+	path = topology-subsystem
+	url = https://git.cse.kau.se/hamzchah/topology-subsystem.git
