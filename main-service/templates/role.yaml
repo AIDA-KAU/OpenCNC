@@ -16,5 +16,6 @@ rules:
   - topology
   - metrics
   - events
+  - device-models
   verbs:
   - '*'

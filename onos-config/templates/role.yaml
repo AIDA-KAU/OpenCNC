@@ -19,6 +19,6 @@ rules:
   - {{ template "onos-config.fullname" . }}-device-snapshots
   - {{ template "onos-config.fullname" . }}-transactions
   - {{ template "onos-config.fullname" . }}-configurations
-
+  - device-models
   verbs:
   - '*'

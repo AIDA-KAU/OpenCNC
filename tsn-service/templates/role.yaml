@@ -12,5 +12,6 @@ rules:
   resourceNames:
   - configurations
   - streams
+  - device-models
   verbs:
   - '*'
