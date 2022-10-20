@@ -22,10 +22,6 @@ dependencies:
     condition: import.onos-config.enabled
     repository: file://../onos-config
     version: 1.5.5
-  - name: tsn-model
-    condition: import.tsn-model.enabled
-    repository: file://../tsn-model
-    version: 1.0.5
   - name: onos-topo
     condition: import.onos-topo.enabled
     repository: file://../onos-topo
@@ -34,3 +30,11 @@ dependencies:
     condition: import.onos-topo.enabled
     repository: file://../gnmi-netconf-adapter
     version: 0.0.1
+  - name: tsn-model
+    condition: import.tsn-model.enabled
+    repository: file://../tsn-model
+    version: 1.0.5
+  - name: b-and-r-model
+    condition: import.b-and-r-model.enabled
+    repository: file://../b-and-r-model
+    version: 1.0.0

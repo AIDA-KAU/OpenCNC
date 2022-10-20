@@ -45,11 +45,13 @@ import:
     enabled: true
   onos-config:
     enabled: true
-  tsn-yang:
-    enabled: true
   onos-topo:
     enabled: true
   gnmi-netconf-adapter:
+    enabled: true
+  tsn-model:
+    enabled: true
+  b-and-r-model:
     enabled: true
 
 # MAIN-SERVICE
@@ -76,7 +78,10 @@ onos-config:
     consensus:
       enabled: false
   models:
-    tsn-yang:
+    tsn-model:
+      v1:
+        enabled: true
+    b-and-r-model:
       v1:
         enabled: true
 

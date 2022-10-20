@@ -1,0 +1,116 @@
+apiVersion: config.onosproject.org/v1beta1
+kind: Model
+metadata:
+  name: {{ template "b-and-r-model.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "b-and-r-model.labels" . | nindent 4 }}
+spec:
+  plugin:
+    type: b-and-r-model
+    version: {{ .Chart.AppVersion | quote }}
+  modules:
+  - name: iana-if-type
+    organization: IANA
+    revision: 2017-01-19
+    file: iana-if-type.yang
+
+  - name: ieee802-dot1ab-lldp
+    organization: Ericsson AB
+    revision: 2018-11-13
+    file: ieee802-dot1ab-lldp.yang
+  
+  - name: ieee802-dot1ab-types
+    organization: IEEE 802.1 Working Group
+    revision: 2018-10-03
+    file: ieee802-dot1ab-types.yang
+
+  - name: ieee802-dot1CB
+    organization: 
+    revision: 2019-04-17
+    file: ieee802-dot1CB.yang
+
+  - name: ieee802-dot1q-bridge
+    organization: IEEE 802.1 Working Group
+    revision: 2018-03-07
+    file: ieee802-dot1q-bridge.yang
+
+  - name: ieee802-dot1q-fqtss
+    organization: IEEE 802.1 Working Group
+    revision: 2014-12-15
+    file: ieee802-dot1q-fqtss.yang
+
+  - name: ieee802-dot1q-preempt
+    organization: TTTech
+    revision: 2018-03-29
+    file: ieee802-dot1q-preempt.yang
+
+  - name: ieee802-dot1q-preemption
+    organization: IEEE 802.1 Working Group
+    revision: 2018-09-10
+    file: ieee802-dot1q-preemption.yang
+
+  - name: ieee802-dot1q-sched
+    organization: IEEE 802.1 Working Group
+    revision: 2018-09-10
+    file: ieee802-dot1q-sched.yang
+
+  - name: ieee802-dot1q-types
+    organization: IEEE 802.1 Working Group
+    revision: 2018-03-08
+    file: ieee802-dot1q-types.yang
+
+  - name: ieee802-ethernet-interface
+    organization: IEEE Std 802.3 Ethernet Working Group
+    revision: 2019-06-21
+    file: ieee802-ethernet-interface.yang
+
+  - name: ieee802-types
+    organization: IEEE 802.1 Working Group
+    revision: 2018-03-07
+    file: ieee802-types.yang
+    
+  - name: ieee8021-mstp
+    organization: IEEE 802.1 Working Group
+    revision: 2012-08-11
+    file: ieee8021-mstp.yang
+
+  - name: ietf-interfaces
+    organization: IETF NETMOD (Network Modeling) Working Group
+    revision: 2018-02-20
+    file: ietf-interfaces.yang
+
+  - name: ietf-ptp
+    organization: IETF TICTOC Working Group
+    revision: 2018-09-12
+    file: ietf-ptp.yang
+
+  - name: ietf-routing
+    organization: IETF NETMOD (Network Modeling) Working Group
+    revision: 2018-03-13
+    file: ietf-routing.yang
+
+  - name: ietf-yang-smiv2
+    organization: IETF NETMOD (NETCONF Data Modeling Language) Working Group
+    revision: 2012-06-22
+    file: ietf-yang-smiv2.yang
+
+  - name: ietf-yang-types
+    organization: IETF NETMOD (NETCONF Data Modeling Language) Working Group
+    revision: 2013-07-15
+    file: ietf-yang-types.yang
+
+  - name: SNMPv2-TC
+    organization: 
+    revision: 2020-01-01
+    file: SNMPv2-TC.yang
+
+  - name: sysrepo-module-versions
+    organization: TTTech Industrial Automation AG
+    revision: 2019-12-23
+    file: sysrepo-module-versions.yang
+  files:
+    {{- range $path, $_  := $.Files.Glob "files/yang/*.yang" }}
+    {{ base $path }}: |
+{{ $.Files.Get $path | indent 6 }}
+    {{- end }}

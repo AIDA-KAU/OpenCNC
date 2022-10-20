@@ -11,14 +11,17 @@ dependencies:
 - name: onos-config
   repository: file://../onos-config
   version: 1.5.5
-- name: tsn-model
-  repository: file://../tsn-model
-  version: 1.0.5
 - name: onos-topo
   repository: file://../onos-topo
   version: 1.2.1
 - name: gnmi-netconf-adapter
   repository: file://../gnmi-netconf-adapter
   version: 0.0.1
-digest: sha256:53018171407236b1e5be3010d912f24f55e6923ba0b42ea0243460c882d5d2f2
-generated: "2022-07-13T06:54:22.8052289+02:00"
+- name: tsn-model
+  repository: file://../tsn-model
+  version: 1.0.5
+- name: b-and-r-model
+  repository: file://../b-and-r-model
+  version: 1.0.0
+digest: sha256:0b68628d521e0a69ddaf1f91296787ff62baef345f42577c7fdafdc97d07d3ae
+generated: "2022-10-20T14:56:38.4371201+02:00"
