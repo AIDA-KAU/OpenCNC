@@ -95,6 +95,8 @@ spec:
           ports:
             - name: grpc
               containerPort: 5150
+            - name: grpc-monitor
+              containerPort: 5152
             # Expose the debug port for debugging
             {{- if .Values.debug }}
             - name: debug

@@ -21,3 +21,5 @@ spec:
       port: 5150
     - name: registry
       port: 5151
+    - name: grpc-monitor
+      port: 5152

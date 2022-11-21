@@ -15,3 +15,5 @@ spec:
   ports:
     - name: grpc
       port: 5150
+    - name: grpc-monitor
+      port: 5151

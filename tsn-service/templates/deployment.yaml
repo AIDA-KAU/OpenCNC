@@ -62,6 +62,8 @@ spec:
           ports:
             - name: grpc
               containerPort: 5150
+            - name: grpc-monitor
+              containerPort: 5151
           volumeMounts:
             - name: config
               mountPath: /etc/onos/config
