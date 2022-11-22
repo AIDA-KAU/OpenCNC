@@ -1,92 +1,90 @@
 # OpenCNC_demo
+This microservice is used to run all the other microservices that are part of OpenCNC.
 
-Scripts and various tools to deploy and run the OpenCNC
+All of the helm charts for deploying the different services that OpenCNC consists of, and the models that are used in OpenCNC is contained in this repository. This repository is responsible for anything related to the deployment of OpenCNC such as, when opening new ports for services, adding new services, or changing access rights to k/v stores.
 
-## Getting started
+## TODO
+Make the script for deploying cleaner.
+Make shell scripts that use kubectl in order to make testing and logging easier since each pod name is hashed.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Problems
+Docker images do not disappear after a rebuild.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
 
-## Add your files
+## Modules
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### grpc service implementation
+To enable grpc ports between microservices, they must first be added in deployment and service yaml files under each service respectively, i.e:
+\opencnc_demo\tsn-service\templates\deployment.yaml
+\opencnc_demo\tsn-service\templates\service.yaml.
 
-```
-cd existing_repo
-git remote add origin https://git.cse.kau.se/hamzchah/opencnc_demo.git
-git branch -M main
-git push -uf origin main
-```
+Under deployment.yaml the path to ports is spec/spec/ports where “- name” and “containerPort” should be added.
+Under deployment.yaml the path to ports is spec/ports where “-name” and “port” should be added.
 
-## Integrate with your tools
+Finalize by running the command “helm dep build” inside opencnc_demo/open-cnc.
 
-- [ ] [Set up project integrations](https://git.cse.kau.se/hamzchah/opencnc_demo/-/settings/integrations)
+### Models
 
-## Collaborate with your team
+#### Adding
+When adding a model to OpenCNC, a new directory should be created for the helm chart of the new model. The directory could be generated with helm or an already existing model directory could be copied. Firstly, one must test compiling the yang files using ygot. If that is successful, the model should work with OpenCNC. 
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+If the model has been added the command “helm dep build” should be executed inside opencnc_demo/open-cnc to rebuild the charts used when deploying OpenCNC.
 
-## Test and Deploy
+When OpenCNC has been deployed in the cluster, the models can be seen using the command “kubectl -n open-cnc get models”, if the model is not there, something has gone wrong when adding it (if no models show up, try redeploying OpenCNC).
 
-Use the built-in continuous integration in GitLab.
+#### Using
+The models should be stored in the k/v store, they are stored from the config-subsystem repository. The exact URNs and in what k/v store they are stored, should potentially be changed, and therefore, is not specified here. The code where the models is stored in the k/v store, is at “config-subsystem/pkg/modelregistry/modelregistry.go line 345”, and at “config-subsystem/pkg/store/deviceModel/deviceModel.go”.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
 
-***
+## Dependencies
+To run OpenCNC's services, one need to first install the following:
+- Docker
+- the programming language go
+	- Must have at least version 1.17
+- helm
+- kind
+- Kubernetes
 
-# Editing this README
+## Setup OpenCNC
+Run these commands in order:
+1. `$ kind create cluster`
+2. `$ cd ~`
+3. `$ mkdir .kube`
+4. `$ kind get kubeconfig > ~/.kube/config`
+    * If it lacks permission, run the following
+        * `$ touch config`
+        * `$ chmod 777 .kube/config`
+5. `$ export KUBECONFIG=~/.kube/config`
+    * If running it for the first time:
+        * `$ helm repo add cord https://charts.opencord.org`
+        * `$ helm repo add atomix https://charts.atomix.io`
+        * `$ helm repo add onosproject https://charts.onosproject.org`
+        * `$ helm repo update`
+6. `$ kubectl create namespace open-cnc`
+7. `$ helm install -n kube-system atomix-controller atomix/atomix-controller`
+8. `$ helm install -n kube-system atomix-raft-storage atomix/atomix-raft-storage`
+9. `$ helm install -n kube-system onos-operator onosproject/onos-operator --version 0.4.13`
+10. `$ helm -n open-cnc install onos-umbrella onosproject/onos-umbrella`
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## Deploy OpenCNC
+- Start the kind control plane
+- Then run the following to:
+    - Deploy/install cnc
+      -  `$ ./opencnc_demo/deploy.sh -n open-cnc -d <path to directory with all microservices>`
+	- press Y to rename namespace
+        -  Press “Y” for each service that should be rebuilt
+- End with Y to deploy OpenCNC with its microservices 
+    - Show deployed pods
+        - `$ kubectl -n open-cnc get pods`
+    - Show logging for a pod
+        - `$ kubectl logs -f -n open-cnc pod/<name of pod> <container if necessary>`
 
-## Name
-Choose a self-explaining name for your project.
+### Possible issues and solutions
+If problem to deploy/install cnc, the following can help:
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- If one run the code on windows with wsl, one might need to convert the file type:
+    - `$ dos2unix opencnc_demo/deploy.sh`
+- One might need to make the file executable
+    - `$ chmod +x opencnc_demo/deploy.sh`
+- If the script fails to install a micro service, it will not show an error message, and instead run with an older version. To check that has not happened, run “make kind” manually for a microservice (while in its directory) to check if it can install it successfully.
