@@ -11,5 +11,6 @@ rules:
   - '*'
   resourceNames:
   - {{ template "onos-topo.fullname" . }}-objects
+  - topology-subsystem-log
   verbs:
   - '*'

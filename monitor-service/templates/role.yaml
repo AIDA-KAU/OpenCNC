@@ -13,5 +13,6 @@ rules:
   - configurations
   - metrics
   - events
+  - monitor-service-log
   verbs:
   - '*'

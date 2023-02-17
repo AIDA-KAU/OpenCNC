@@ -16,5 +16,6 @@ rules:
   resourceNames:
   - {{ template "grpc-client.fullname" . }}-test
   - monitor-config
+  - device-models
   verbs:
   - '*'

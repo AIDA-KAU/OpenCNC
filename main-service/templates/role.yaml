@@ -17,5 +17,11 @@ rules:
   - metrics
   - events
   - device-models
+  - main-service-log
+  - monitor-service-log
+  - tsn-service-log
+  - gnmi-netconf-adapter-log
+  - config-subsystem-log
+  - topology-subsystem-log
   verbs:
   - '*'

@@ -13,5 +13,6 @@ rules:
   - configurations
   - streams
   - device-models
+  - tsn-service-log
   verbs:
   - '*'

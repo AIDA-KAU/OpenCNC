@@ -20,5 +20,6 @@ rules:
   - {{ template "onos-config.fullname" . }}-transactions
   - {{ template "onos-config.fullname" . }}-configurations
   - device-models
+  - config-subsystem-log
   verbs:
   - '*'
