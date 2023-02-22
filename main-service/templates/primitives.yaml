@@ -10,15 +10,15 @@
 #     {{- else }}
 #     name: {{ template "main-service.store.consensus.name" . }}
 #     {{- end }}
-apiVersion: primitives.atomix.io/v2beta1
-kind: List
-metadata:
-  name: main-service-log
-  namespace: {{ .Release.Namespace }}
-spec:
-  store:
-    {{- if .Values.global.store.consensus.enabled }}
-    name: {{ template "global.store.consensus.name" . }}
-    {{- else }}
-    name: {{ template "open-cnc.store.consensus.name" . }}
-    {{- end }}
+# apiVersion: primitives.atomix.io/v2beta1
+# kind: List
+# metadata:
+#   name: main-service-log
+#   namespace: {{ .Release.Namespace }}
+# spec:
+#   store:
+#     {{- if .Values.global.store.consensus.enabled }}
+#     name: {{ template "global.store.consensus.name" . }}
+#     {{- else }}
+#     name: {{ template "open-cnc.store.consensus.name" . }}
+#     {{- end }}
