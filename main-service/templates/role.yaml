@@ -16,6 +16,7 @@ rules:
   - topology
   - metrics
   - events
+  - endnodes
   - device-models
   - main-service-log
   - monitor-service-log
