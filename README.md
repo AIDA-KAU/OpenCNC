@@ -1,5 +1,5 @@
 # OpenCNC_demo
-This microservice is used to run all the other microservices that are part of OpenCNC.
+This microservice is used to run all the other microservices that are part of the Open Centralized Network Configuration (OpenCNC).
 
 All of the helm charts for deploying the different services that OpenCNC consists of, and the models that are used in OpenCNC is contained in this repository. This repository is responsible for anything related to the deployment of OpenCNC such as, when opening new ports for services, adding new services, or changing access rights to k/v stores.
 
