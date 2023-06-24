@@ -1,6 +1,8 @@
 # OpenCNC_demo
 This microservice is used to run all the other microservices that are part of the Open Centralized Network Configuration (OpenCNC).
 
+OpenCNC is a control plane implementation to manage configurations of a TSN network, that through the different microservices comprising OpenCNC (main-service, tsn-service, monitor-service, topology-subsystem, config-subsystem, and gnmi-netconf-adapter), aims to automate the configuration process.
+
 All of the helm charts for deploying the different services that OpenCNC consists of, and the models that are used in OpenCNC is contained in this repository. This repository is responsible for anything related to the deployment of OpenCNC such as, when opening new ports for services, adding new services, or changing access rights to k/v stores.
 
 ## TODO
