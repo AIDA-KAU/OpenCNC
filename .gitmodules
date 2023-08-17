@@ -12,7 +12,7 @@
 	url = https://git.cs.kau.se/hamzchah/opencnc_gnmi-netconf-adapter.git
 [submodule "config-subsystem"]
 	path = config-subsystem
-	url = https://git.cs.kau.se/hamzchah/config-subsystem.git
+	url = https://git.cs.kau.se/hamzchah/opencnc_config-subsystem.git
 [submodule "topology-subsystem"]
 	path = topology-subsystem
-	url = https://git.cs.kau.se/hamzchah/topology-subsystem.git
+	url = https://git.cs.kau.se/hamzchah/opencnc_topology-subsystem.git
