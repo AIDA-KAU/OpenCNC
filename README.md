@@ -1,17 +1,47 @@
-# OpenCNC_demo
-This microservice is used to run all the other microservices that are part of the Open Centralized Network Configuration (OpenCNC).
+This repository is a microservice of the tool OpenCNC. OpenCNC is a unit that automatically manages the elements of a Time Sensitive Network (TSN) according to the specification presented in the IEEE 801.2Q standard and its relevant amendments.
 
-OpenCNC is a control plane implementation to manage configurations of a TSN network, that through the different microservices comprising OpenCNC (main-service, tsn-service, monitor-service, topology-subsystem, config-subsystem, and gnmi-netconf-adapter), aims to automate the configuration process.
+This repository is the best starting point with OpenCNC. It contains links to the rest of its microservices, installation guide, a deployment script as well as the needed dependencies.
+
+# Brief introduction of OpenCNC
+
+OpenCNC is an implementation of the Control plane for TSN networks that orchestrates and manages the operations in the forwarding plane. The term management entails more than configuring
+the network. It includes:
+* Calculating the configuration of the TSN switches and the end stations.
+* Loading and retrieving the configuration to/from the TSN switches automatically depending on the current state and target state of the network.
+* Discovering the switches and retrieving their capabilities.
+* Maintaining a global view of the topology and the available resources.
+* Handling network events in order to maintain a desired state.
+* Monitoring of performance key values for network analysis.
+
+OpenCNC is designed as a micro-service based system. In total, it has the following micro-services, each micro-service is implemented in a different repository to allow easier use, extension and maintenance of the tool:
+* Main service
+* TSN service
+* policing service (not implemented yet)
+* Monitoring interface
+* Monitor service
+* Topology service
+* Config service
+* gnmi to Netconf adapter
+* Onos plugin (not implemented yet)
+
+an overview of the OpenCNC target architecture is presented in the following Figure:
+<img src="./images/arch.png">
+
+
+# OpenCNC_demo
+This microservice is used to run all the other microservices that are part of the Open Centralized Network Configurator (OpenCNC).
 
 All of the helm charts for deploying the different services that OpenCNC consists of, and the models that are used in OpenCNC is contained in this repository. This repository is responsible for anything related to the deployment of OpenCNC such as, when opening new ports for services, adding new services, or changing access rights to k/v stores.
 
 ## TODO
 Make the script for deploying cleaner.
+
 Make shell scripts that use kubectl in order to make testing and logging easier since each pod name is hashed.
+
+Install OpenCNC is a production environment using k8s instead of Kind.
 
 ## Problems
 Docker images do not disappear after a rebuild.
-
 
 ## Modules
 
@@ -28,7 +58,7 @@ Finalize by running the command “helm dep build” inside opencnc_demo/open-cn
 ### Models
 
 #### Adding
-When adding a model to OpenCNC, a new directory should be created for the helm chart of the new model. The directory could be generated with helm or an already existing model directory could be copied. Firstly, one must test compiling the yang files using ygot. If that is successful, the model should work with OpenCNC. 
+When adding a model to OpenCNC, a new directory should be created for the helm chart of the new model. The directory could be generated with helm or an already existing model directory could be copied. Firstly, one must test compiling the yang files using ygot. If that is successful, the model should work with OpenCNC.
 
 If the model has been added the command “helm dep build” should be executed inside opencnc_demo/open-cnc to rebuild the charts used when deploying OpenCNC.
 
@@ -76,7 +106,7 @@ Run these commands in order:
       -  `$ ./opencnc_demo/deploy.sh -n open-cnc -d <path to directory with all microservices>`
 	- press Y to rename namespace
         -  Press “Y” for each service that should be rebuilt
-- End with Y to deploy OpenCNC with its microservices 
+- End with Y to deploy OpenCNC with its microservices
     - Show deployed pods
         - `$ kubectl -n open-cnc get pods`
     - Show logging for a pod
